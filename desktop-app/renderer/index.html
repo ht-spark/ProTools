@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MTD - Markdown 转 Word</title>
+    <title>ProTools - 文档与 Word 互转</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -26,8 +26,8 @@
                     <line x1="15.4" y1="34.5" x2="25.9" y2="34.5" stroke="#6D28D9" stroke-width="0.8" opacity="0.7"/>
                 </svg>
                 <div class="sidebar-title">
-                    <h1>MTD</h1>
-                    <span class="sidebar-subtitle">Markdown 转 Word</span>
+                    <h1>ProTools</h1>
+                    <span class="sidebar-subtitle">文档与 Word 互转</span>
                 </div>
             </div>
 
@@ -35,6 +35,10 @@
                 <button class="nav-item active" data-view="convert">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
                     <span>转换</span>
+                </button>
+                <button class="nav-item" data-view="import">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span>文档导入</span>
                 </button>
                 <button class="nav-item" data-view="history">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -55,7 +59,7 @@
                     <span class="status-dot" id="pandocDotSidebar"></span>
                     <span id="pandocStatusSidebar">检查中</span>
                 </div>
-                <span class="sidebar-version" id="appVersion">v1.0.0</span>
+                <span class="sidebar-version" id="appVersion">v1.1.0</span>
             </div>
         </aside>
 
@@ -161,6 +165,60 @@
                 <div class="result-banner" id="resultBanner" style="display:none;"></div>
             </section>
 
+            <!-- ── 文档导入页面 ── -->
+            <section class="view" id="view-import">
+                <div class="view-header">
+                    <h2>文档转 Markdown</h2>
+                    <p class="view-desc">导入 PDF、Word、PPT、Excel、图片、音频等格式，转换为可编辑的 Markdown，可继续送去做 Word</p>
+                </div>
+
+                <!-- 导入区 -->
+                <div class="upload-zone" id="importZone">
+                    <div class="upload-inner">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <div class="upload-text">
+                            <span class="upload-title">导入任意文档</span>
+                            <span class="upload-hint">点击选择或拖拽文件到此处（PDF / DOCX / PPTX / XLSX / 图片 / 音频 / HTML / EPUB / CSV …）</span>
+                        </div>
+                    </div>
+                    <input type="file" id="importFileInput" multiple style="display:none;">
+                </div>
+
+                <!-- 待转换文件 -->
+                <div class="import-queue" id="importQueue" style="display:none;"></div>
+
+                <!-- 转换按钮 -->
+                <div class="convert-actions">
+                    <button class="btn btn-primary btn-lg" id="btnImport">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <span>转换为 Markdown</span>
+                    </button>
+                    <button class="btn btn-secondary" id="btnImportClear">清空</button>
+                </div>
+
+                <!-- 转换结果 -->
+                <div class="result-banner" id="importBanner" style="display:none;"></div>
+
+                <div class="convert-form" id="importResult" style="display:none;">
+                    <div class="convert-actions import-actions">
+                        <button class="btn btn-primary" id="btnSendToWord">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
+                            <span>送入 Word 转换</span>
+                        </button>
+                        <button class="btn btn-secondary" id="btnCopyMd">复制 Markdown</button>
+                        <button class="btn btn-outline" id="btnSaveMd">保存 .md</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Markdown 结果<span class="import-source" id="importSource"></span></label>
+                        <textarea id="importOutput" readonly placeholder="转换结果将显示在这里"></textarea>
+                        <div class="textarea-info">
+                            <span id="importChars">0 字符</span>
+                            <span id="importStats" class="file-name-display"></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- ── 历史记录页面 ── -->
             <section class="view" id="view-history">
                 <div class="view-header">
@@ -186,7 +244,7 @@
             <section class="view" id="view-status">
                 <div class="view-header">
                     <h2>引擎状态</h2>
-                    <p class="view-desc">查看 Pandoc 转换引擎的安装状态和版本信息</p>
+                    <p class="view-desc">查看 Pandoc 与 MarkItDown 引擎的安装状态和版本信息</p>
                 </div>
                 <div class="status-cards">
                     <div class="status-card" id="pandocCard">
@@ -222,6 +280,42 @@
                         </div>
                     </div>
 
+                    <div class="status-card" id="markitdownCard">
+                        <div class="status-card-header">
+                            <div class="status-card-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            </div>
+                            <div>
+                                <h3>MarkItDown</h3>
+                                <span class="badge checking" id="mdEngineBadge">检查中...</span>
+                            </div>
+                        </div>
+                        <div class="status-card-body">
+                            <div class="info-row">
+                                <span class="info-label">状态</span>
+                                <span class="info-value">
+                                    <span class="status-dot" id="mdEngineDot"></span>
+                                    <span id="mdEngineStatus">检查中...</span>
+                                </span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">版本</span>
+                                <span class="info-value mono" id="mdEngineVersion">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">支持格式</span>
+                                <span class="info-value" id="mdEngineFormats">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">组件路径</span>
+                                <span class="info-value mono path" id="mdEnginePath">-</span>
+                            </div>
+                        </div>
+                        <div class="status-card-actions">
+                            <button class="btn btn-secondary btn-sm" id="btnCheckMdEngine">重新检测</button>
+                        </div>
+                    </div>
+
                     <div class="status-card info-card">
                         <div class="status-card-header">
                             <div class="status-card-icon">
@@ -232,7 +326,7 @@
                             </div>
                         </div>
                         <div class="status-card-body">
-                            <p class="info-text">Pandoc 是一款通用的文档转换工具，MTD 使用它将 Markdown 转换为 Word 文档。</p>
+                            <p class="info-text">Pandoc 是一款通用的文档转换工具，ProTools 使用它将 Markdown 转换为 Word 文档。</p>
                             <p class="info-text">如果未安装 Pandoc，请点击「下载 Pandoc」前往官网下载安装。安装后点击「重新检测」即可。</p>
                         </div>
                     </div>
@@ -243,7 +337,7 @@
             <section class="view" id="view-settings">
                 <div class="view-header">
                     <h2>应用设置</h2>
-                    <p class="view-desc">配置 MTD 桌面应用的行为选项</p>
+                    <p class="view-desc">配置 ProTools 桌面应用的行为选项</p>
                 </div>
                 <div class="settings-cards">
                     <div class="settings-card">
@@ -254,7 +348,7 @@
                             <label class="setting-item">
                                 <div class="setting-info">
                                     <span class="setting-title">开机自启动</span>
-                                    <span class="setting-desc">系统开机时自动启动 MTD</span>
+                                    <span class="setting-desc">系统开机时自动启动 ProTools</span>
                                 </div>
                                 <div class="toggle">
                                     <input type="checkbox" id="autoLaunchToggle">
@@ -387,7 +481,7 @@
                         <div class="settings-list">
                             <div class="info-row">
                                 <span class="info-label">应用名称</span>
-                                <span class="info-value">MTD</span>
+                                <span class="info-value">ProTools</span>
                             </div>
                             <div class="info-row">
                                 <span class="info-label">版本</span>
@@ -395,10 +489,10 @@
                             </div>
                             <div class="info-row">
                                 <span class="info-label">描述</span>
-                                <span class="info-value">Markdown 转 Word 文档工具</span>
+                                <span class="info-value">文档与 Word 双向转换工具</span>
                             </div>
                         </div>
-                        <p class="copyright">MTD - 支持可编辑公式和表格样式的文档转换工具</p>
+                        <p class="copyright">ProTools - 支持可编辑公式和表格样式的文档转换工具</p>
                     </div>
 
                     <!-- 依赖信息 -->

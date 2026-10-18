@@ -1,5 +1,5 @@
 /**
- * MTD Desktop - 渲染进程逻辑
+ * ProTools Desktop - 渲染进程逻辑
  * 侧边栏布局 + 文件上传 + 历史记录
  */
 (function () {
@@ -36,6 +36,22 @@
         btnClear: $('btnClear'),
         resultBanner: $('resultBanner'),
 
+        // 文档导入页面
+        importZone: $('importZone'),
+        importFileInput: $('importFileInput'),
+        importQueue: $('importQueue'),
+        btnImport: $('btnImport'),
+        btnImportClear: $('btnImportClear'),
+        importBanner: $('importBanner'),
+        importResult: $('importResult'),
+        importOutput: $('importOutput'),
+        importChars: $('importChars'),
+        importStats: $('importStats'),
+        importSource: $('importSource'),
+        btnSendToWord: $('btnSendToWord'),
+        btnCopyMd: $('btnCopyMd'),
+        btnSaveMd: $('btnSaveMd'),
+
         // 历史页面
         historyList: $('historyList'),
         historyCount: $('historyCount'),
@@ -49,6 +65,15 @@
         pandocPath: $('pandocPath'),
         btnCheckPandoc: $('btnCheckPandoc'),
         btnInstallPandoc: $('btnInstallPandoc'),
+
+        // MarkItDown 引擎状态
+        mdEngineBadge: $('mdEngineBadge'),
+        mdEngineDot: $('mdEngineDot'),
+        mdEngineStatus: $('mdEngineStatus'),
+        mdEngineVersion: $('mdEngineVersion'),
+        mdEngineFormats: $('mdEngineFormats'),
+        mdEnginePath: $('mdEnginePath'),
+        btnCheckMdEngine: $('btnCheckMdEngine'),
 
         // 设置页面
         autoLaunchToggle: $('autoLaunchToggle'),
@@ -83,6 +108,12 @@
     let pandocReady = false;
     let cachedFontSettings = null;
 
+    // 文档导入状态：队列里每一项对应一个待转换文件
+    let importItems = [];
+    let activeImportIndex = -1;
+    let importBusy = false;
+    let importBannerTimer = null;
+
     // ===== 侧边栏导航 =====
     function switchView(viewName) {
         els.navItems.forEach(btn => {
@@ -97,6 +128,13 @@
         }
         if (viewName === 'settings') {
             loadDependencies();
+        }
+        if (viewName === 'status') {
+            checkMarkitdown();
+        }
+        if (viewName === 'import') {
+            // 提前拉起转换组件，避免用户点击转换时再等 1~2 秒
+            Promise.resolve(sp.markitdown.warm()).catch(() => {});
         }
     }
 
@@ -321,6 +359,42 @@
             els.pandocStatusSidebar.textContent = '未安装';
             els.pandocVersion.textContent = '-';
             els.pandocPath.textContent = '-';
+        }
+    }
+
+    // ===== MarkItDown 状态 =====
+    async function checkMarkitdown() {
+        els.mdEngineBadge.textContent = '检查中...';
+        els.mdEngineBadge.className = 'badge checking';
+        els.mdEngineDot.className = 'status-dot';
+        els.mdEngineStatus.textContent = '检查中...';
+
+        try {
+            const info = await sp.markitdown.status();
+            if (info.available) {
+                els.mdEngineBadge.textContent = '已就绪';
+                els.mdEngineBadge.className = 'badge running';
+                els.mdEngineDot.className = 'status-dot running';
+                els.mdEngineStatus.textContent = info.ready ? '运行中' : '待调用';
+                els.mdEngineVersion.textContent = info.version || '0.1.8';
+                els.mdEngineFormats.textContent = info.formats.length
+                    ? `${info.formats.length} 种（${info.formats.slice(0, 6).join(' ')} …）`
+                    : 'PDF DOCX PPTX XLSX HTML CSV EPUB …';
+                els.mdEnginePath.textContent = info.executable || '-';
+            } else {
+                els.mdEngineBadge.textContent = '不可用';
+                els.mdEngineBadge.className = 'badge warning';
+                els.mdEngineDot.className = 'status-dot warning';
+                els.mdEngineStatus.textContent = '未找到运行组件';
+                els.mdEngineVersion.textContent = '-';
+                els.mdEngineFormats.textContent = '-';
+                els.mdEnginePath.textContent = info.error || '-';
+            }
+        } catch (err) {
+            els.mdEngineBadge.textContent = '错误';
+            els.mdEngineBadge.className = 'badge stopped';
+            els.mdEngineDot.className = 'status-dot stopped';
+            els.mdEngineStatus.textContent = '检测失败';
         }
     }
 
@@ -686,6 +760,293 @@
         return cachedFontSettings;
     }
 
+    // ===== 文档导入（MarkItDown） =====
+    const IMPORT_SUPPORTED_EXTENSIONS = [
+        'pdf', 'docx', 'pptx', 'xlsx', 'xls', 'html', 'htm', 'epub', 'ipynb', 'csv',
+        'txt', 'md', 'markdown', 'json', 'xml', 'zip', 'msg', 'mp3', 'wav', 'm4a',
+        'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff'
+    ];
+
+    function formatSizeKB(sizeKB) {
+        if (!sizeKB) return '0 KB';
+        return sizeKB >= 1024 ? (sizeKB / 1024).toFixed(1) + ' MB' : sizeKB + ' KB';
+    }
+
+    function importStatusText(item) {
+        if (item.status === 'running') return '转换中…';
+        if (item.status === 'done') return item.chars.toLocaleString() + ' 字符';
+        if (item.status === 'error') return '失败';
+        return formatSizeKB(item.sizeKB);
+    }
+
+    function renderImportQueue() {
+        if (importItems.length === 0) {
+            els.importQueue.style.display = 'none';
+            els.importQueue.innerHTML = '';
+            return;
+        }
+        els.importQueue.style.display = 'flex';
+        els.importQueue.innerHTML = importItems.map((item, index) => {
+            const classes = ['import-item', item.status, index === activeImportIndex ? 'active' : ''].join(' ');
+            return `
+                <div class="${classes}" data-index="${index}">
+                    <span class="import-item-dot"></span>
+                    <span class="import-item-name" title="${escapeAttr(item.path)}">${escapeHtml(item.name)}</span>
+                    <span class="import-item-meta">${escapeHtml(importStatusText(item))}</span>
+                    <button class="import-item-remove" data-remove="${index}" title="移除">×</button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function addImportFiles(files) {
+        const known = new Set(importItems.map((item) => item.path));
+        let added = 0;
+        for (const file of files) {
+            if (!file || !file.path || known.has(file.path)) continue;
+            importItems.push({
+                path: file.path,
+                name: file.name,
+                sizeKB: file.sizeKB || 0,
+                status: 'pending',
+                markdown: '',
+                chars: 0,
+                images: 0,
+                elapsedMs: 0,
+                title: '',
+                assetsDir: null,
+                error: null
+            });
+            known.add(file.path);
+            added += 1;
+        }
+        if (added > 0) {
+            if (activeImportIndex < 0) activeImportIndex = 0;
+            els.importBanner.style.display = 'none';
+            els.importResult.style.display = 'none';
+            renderImportQueue();
+            setFooter(`已加入 ${added} 个文件，共 ${importItems.length} 个待转换`);
+        }
+    }
+
+    async function pickImportFiles() {
+        if (importBusy) return;
+        const result = await sp.markitdown.pickFiles();
+        if (!result.success || !result.files) return;
+        addImportFiles(result.files);
+    }
+
+    async function convertImports() {
+        if (importBusy) return;
+        if (importItems.length === 0) {
+            setFooter('请先选择要转换的文档');
+            return;
+        }
+
+        const engine = await sp.markitdown.status();
+        if (!engine.available) {
+            showImportBanner(false, '未找到 MarkItDown 运行组件，请重新安装应用');
+            return;
+        }
+
+        importBusy = true;
+        els.btnImport.classList.add('loading');
+        els.btnImport.disabled = true;
+        els.btnImport.querySelector('span').textContent = '转换中...';
+        els.importBanner.style.display = 'none';
+
+        const queue = importItems.filter((item) => item.status !== 'done');
+        let completed = 0;
+        let lastError = null;
+
+        for (const item of queue) {
+            item.status = 'running';
+            item.error = null;
+            renderImportQueue();
+            setFooter(`正在转换 ${item.name}...`);
+
+            const result = await sp.markitdown.convert(item.path);
+            if (result.success) {
+                item.status = 'done';
+                item.markdown = result.markdown;
+                item.chars = result.chars;
+                item.images = result.images;
+                item.elapsedMs = result.elapsedMs;
+                item.title = result.title;
+                item.assetsDir = result.assetsDir;
+                completed += 1;
+            } else {
+                item.status = 'error';
+                item.error = result.error || '转换失败';
+                lastError = `${item.name}：${item.error}`;
+            }
+            renderImportQueue();
+        }
+
+        importBusy = false;
+        els.btnImport.classList.remove('loading');
+        els.btnImport.disabled = false;
+        els.btnImport.querySelector('span').textContent = '转换为 Markdown';
+
+        const firstDone = importItems.findIndex((item) => item.status === 'done');
+        if (firstDone >= 0) {
+            activeImportIndex = firstDone;
+            renderImportQueue();
+            previewImport(firstDone);
+            const item = importItems[firstDone];
+            const suffix = completed > 1 ? `已转换 ${completed} 个文件，` : '';
+            showImportBanner(true, `${suffix}用时 ${(item.elapsedMs / 1000).toFixed(2)} 秒`);
+            setFooter('转换完成');
+        } else {
+            showImportBanner(false, lastError || '转换失败');
+            setFooter('转换失败');
+        }
+    }
+
+    function previewImport(index) {
+        const item = importItems[index];
+        if (!item || item.status !== 'done') {
+            els.importResult.style.display = 'none';
+            return;
+        }
+        els.importResult.style.display = 'block';
+        els.importOutput.value = item.markdown;
+        els.importOutput.scrollTop = 0;
+        els.importChars.textContent = item.chars.toLocaleString() + ' 字符';
+        const meta = [`${(item.elapsedMs / 1000).toFixed(2)} 秒`];
+        if (item.images) meta.push(`图片 ${item.images} 张`);
+        if (item.sizeKB) meta.push(`源文件 ${formatSizeKB(item.sizeKB)}`);
+        els.importStats.textContent = meta.join(' · ');
+        els.importSource.textContent = ' · ' + item.name;
+    }
+
+    function showImportBanner(success, message) {
+        const banner = els.importBanner;
+        banner.style.display = 'flex';
+        banner.className = 'result-banner ' + (success ? 'success' : 'error');
+        const icon = success
+            ? '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
+            : '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+        banner.innerHTML = `
+            <div class="result-banner-icon">${icon}</div>
+            <div class="result-banner-body">
+                <h3>${success ? '转换成功' : '转换失败'}</h3>
+                <p>${escapeHtml(message || '')}</p>
+            </div>
+            <div class="result-banner-actions">
+                <button class="btn btn-outline btn-sm" data-close-import-banner>关闭</button>
+            </div>
+        `;
+
+        if (importBannerTimer) clearTimeout(importBannerTimer);
+        if (success) {
+            // 成功提示 6 秒后自动收起，避免长期占用首屏空间
+            importBannerTimer = setTimeout(() => {
+                els.importBanner.style.display = 'none';
+            }, 6000);
+        }
+    }
+
+    function sendActiveToWord() {
+        const item = importItems[activeImportIndex];
+        if (!item || item.status !== 'done') {
+            setFooter('请先完成一次转换');
+            return;
+        }
+        els.markdownInput.value = item.markdown;
+        currentFileName = item.name;
+        els.docTitle.value = item.title || item.name.replace(/\.[^.]+$/, '');
+        els.fileNameDisplay.textContent = '来自: ' + item.name;
+        els.fileNameDisplay.style.display = 'inline';
+        updateCharCount();
+        switchView('convert');
+        els.markdownInput.scrollTop = 0;
+        setFooter('已填入转换页，确认无误后点击「转换为 Word」');
+    }
+
+    async function copyActiveMarkdown() {
+        const item = importItems[activeImportIndex];
+        if (!item || !item.markdown) {
+            setFooter('没有可复制的内容');
+            return;
+        }
+        try {
+            await navigator.clipboard.writeText(item.markdown);
+            setFooter('Markdown 已复制到剪贴板');
+        } catch (error) {
+            setFooter('复制失败：' + error.message);
+        }
+    }
+
+    async function saveActiveMarkdown() {
+        const item = importItems[activeImportIndex];
+        if (!item || !item.markdown) {
+            setFooter('没有可保存的内容');
+            return;
+        }
+        const result = await sp.markitdown.save({
+            markdown: item.markdown,
+            title: item.title || item.name,
+            assetsDir: item.assetsDir
+        });
+        if (result.success) {
+            const extra = result.assetsCopied ? `（含 ${result.assetsCopied} 张图片，已存入同名 .assets 目录）` : '';
+            showImportBanner(true, `${result.filePath}${extra}`);
+            setFooter('已保存 Markdown 文件');
+        } else if (!result.canceled) {
+            showImportBanner(false, result.error || '保存失败');
+            setFooter('保存失败');
+        }
+    }
+
+    function clearImports() {
+        if (importBusy) return;
+        importItems = [];
+        activeImportIndex = -1;
+        els.importOutput.value = '';
+        els.importResult.style.display = 'none';
+        els.importBanner.style.display = 'none';
+        renderImportQueue();
+        setFooter('已清空导入队列');
+    }
+
+    function setupImportDragDrop() {
+        const zone = els.importZone;
+        zone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            zone.classList.add('dragover');
+        });
+        zone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            zone.classList.remove('dragover');
+        });
+        zone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            zone.classList.remove('dragover');
+
+            const dropped = Array.from(e.dataTransfer.files || []);
+            if (dropped.length === 0) return;
+
+            const accepted = [];
+            const rejected = [];
+            for (const file of dropped) {
+                const ext = (file.name.split('.').pop() || '').toLowerCase();
+                if (!file.path) {
+                    rejected.push(file.name);
+                } else if (IMPORT_SUPPORTED_EXTENSIONS.includes(ext)) {
+                    accepted.push({ path: file.path, name: file.name, sizeKB: Math.round(file.size / 1024) });
+                } else {
+                    rejected.push(file.name);
+                }
+            }
+            if (rejected.length) setFooter(`已跳过不支持的文件：${rejected.join('、')}`);
+            if (accepted.length) addImportFiles(accepted);
+        });
+    }
+
     // ===== 事件绑定 =====
     function bindEvents() {
         // 侧边栏导航
@@ -700,6 +1061,47 @@
             if (!file) return;
             const text = await file.text();
             loadFileContent(text, file.name);
+        });
+
+        // 文档导入
+        els.importZone.addEventListener('click', pickImportFiles);
+        els.importFileInput.addEventListener('change', (e) => {
+            const picked = Array.from(e.target.files || [])
+                .filter((file) => file.path)
+                .map((file) => ({ path: file.path, name: file.name, sizeKB: Math.round(file.size / 1024) }));
+            if (picked.length) addImportFiles(picked);
+            e.target.value = '';
+        });
+        setupImportDragDrop();
+        els.btnImport.addEventListener('click', convertImports);
+        els.btnImportClear.addEventListener('click', clearImports);
+        els.btnSendToWord.addEventListener('click', sendActiveToWord);
+        els.btnCopyMd.addEventListener('click', copyActiveMarkdown);
+        els.btnSaveMd.addEventListener('click', saveActiveMarkdown);
+
+        els.importQueue.addEventListener('click', (e) => {
+            const removeBtn = e.target.closest('[data-remove]');
+            if (removeBtn) {
+                if (importBusy) return;
+                importItems.splice(Number(removeBtn.dataset.remove), 1);
+                if (activeImportIndex >= importItems.length) activeImportIndex = importItems.length - 1;
+                renderImportQueue();
+                if (activeImportIndex >= 0) previewImport(activeImportIndex);
+                else els.importResult.style.display = 'none';
+                return;
+            }
+            const row = e.target.closest('[data-index]');
+            if (row) {
+                activeImportIndex = Number(row.dataset.index);
+                renderImportQueue();
+                previewImport(activeImportIndex);
+            }
+        });
+
+        els.importBanner.addEventListener('click', (e) => {
+            if (e.target.closest('[data-close-import-banner]')) {
+                els.importBanner.style.display = 'none';
+            }
         });
 
         // 拖拽
@@ -727,6 +1129,7 @@
         els.btnInstallPandoc.addEventListener('click', () => {
             sp.shell.openExternal('https://pandoc.org/installing.html');
         });
+        els.btnCheckMdEngine.addEventListener('click', checkMarkitdown);
 
         // 设置
         els.autoLaunchToggle.addEventListener('change', (e) => setAutoLaunch(e.target.checked));
@@ -750,6 +1153,7 @@
         await loadAppInfo();
         await loadFontSettings();
         await checkPandoc();
+        await checkMarkitdown();
         setFooter('就绪');
     }
 

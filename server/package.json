@@ -1,7 +1,7 @@
 {
-    "name": "ai-chat-docx-server",
+    "name": "protools-server",
     "version": "1.0.0",
-    "description": "Conversion server for SuperPlugin - converts Markdown+LaTeX to DOCX with editable formulas and formatted tables",
+    "description": "Conversion server for ProTools - converts Markdown+LaTeX to DOCX with editable formulas and formatted tables",
     "main": "index.js",
     "scripts": {
         "start": "node index.js",

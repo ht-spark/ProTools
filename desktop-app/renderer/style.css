@@ -1207,3 +1207,112 @@ body {
     font-size: 12px;
     color: var(--text-tertiary);
 }
+
+/* ===== 文档导入队列 ===== */
+.import-queue {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.import-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: border-color .15s, box-shadow .15s;
+}
+
+.import-item:hover {
+    border-color: #c7d2fe;
+}
+
+.import-item.active {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 1px rgba(99, 102, 241, .18);
+}
+
+.import-item-dot {
+    width: 8px;
+    height: 8px;
+    flex: 0 0 8px;
+    border-radius: 50%;
+    background: var(--text-tertiary);
+}
+
+.import-item.running .import-item-dot {
+    background: var(--warning);
+    animation: importPulse 1.1s ease-in-out infinite;
+}
+
+.import-item.done .import-item-dot {
+    background: var(--success);
+}
+
+.import-item.error .import-item-dot {
+    background: var(--danger);
+}
+
+.import-item-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+    color: var(--text);
+}
+
+.import-item-meta {
+    flex: 0 0 auto;
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+}
+
+.import-item.error .import-item-meta {
+    color: var(--danger);
+}
+
+.import-item-remove {
+    flex: 0 0 auto;
+    border: none;
+    background: transparent;
+    color: var(--text-tertiary);
+    font-size: 16px;
+    line-height: 1;
+    padding: 0 2px;
+    cursor: pointer;
+}
+
+.import-item-remove:hover {
+    color: var(--danger);
+}
+
+.import-source {
+    margin-left: 6px;
+    font-weight: 400;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+@keyframes importPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .35; }
+}
+
+/* 导入结果预览：限高，确保「送入 Word / 复制 / 保存」按钮在首屏可见 */
+#importOutput {
+    height: 220px;
+    min-height: 180px;
+}
+
+/* 结果工具条：置于预览上方，窗口较小时也无需滚动即可操作 */
+.import-actions {
+    margin-bottom: 12px;
+}

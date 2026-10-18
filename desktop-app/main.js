@@ -1,12 +1,16 @@
 /**
- * MTD Desktop - Electron 主进程
- * 独立桌面应用，直接提供 Markdown → Word 转换
+ * ProTools Desktop - Electron 主进程
+ * 独立桌面应用，提供 文档 → Markdown 与 Markdown → Word 双向转换
  */
 const { app, BrowserWindow, Tray, Menu, ipcMain, shell, nativeImage, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
 const serverApp = require('./server-app');
+const sidecar = require('./sidecar');
+
+// 应用名称决定 userData 目录（%APPDATA%\ProTools），必须在读取任何用户路径之前设置
+app.setName('ProTools');
 
 let mainWindow = null;
 let tray = null;
@@ -36,6 +40,57 @@ const MAX_HISTORY = 100;
 
 // ===== 字体设置存储 =====
 const FONT_SETTINGS_FILE = path.join(app.getPath('userData'), 'font-settings.json');
+
+// ===== MarkItDown 导入缓存 =====
+// 转换产生的内嵌图片先落到临时目录，保存 .md 时再随文档一起搬运。
+const IMPORT_CACHE_DIR = path.join(require('os').tmpdir(), 'protools-markitdown-cache');
+const IMPORT_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+// ===== 旧版本（MTD）用户数据迁移 =====
+// 更名后 userData 从 mtd-desktop 变为 ProTools，首次启动时把历史与字体设置带过来。
+const LEGACY_USER_DATA_DIR = path.join(app.getPath('appData'), 'mtd-desktop');
+const LEGACY_USER_FILES = ['conversion-history.json', 'font-settings.json'];
+
+function migrateLegacyUserData() {
+    try {
+        const currentDir = app.getPath('userData');
+        if (path.resolve(currentDir) === path.resolve(LEGACY_USER_DATA_DIR)) return;
+        if (!fs.existsSync(LEGACY_USER_DATA_DIR)) return;
+
+        for (const name of LEGACY_USER_FILES) {
+            const source = path.join(LEGACY_USER_DATA_DIR, name);
+            const target = path.join(currentDir, name);
+            if (fs.existsSync(source) && !fs.existsSync(target)) {
+                fs.mkdirSync(currentDir, { recursive: true });
+                fs.copyFileSync(source, target);
+                console.log(`已迁移旧版用户数据：${name}`);
+            }
+        }
+    } catch (error) {
+        console.warn('旧版用户数据迁移跳过:', error.message);
+    }
+}
+
+function prepareImportCache() {
+    try {
+        fs.mkdirSync(IMPORT_CACHE_DIR, { recursive: true });
+        const now = Date.now();
+        for (const entry of fs.readdirSync(IMPORT_CACHE_DIR)) {
+            const target = path.join(IMPORT_CACHE_DIR, entry);
+            try {
+                if (now - fs.statSync(target).mtimeMs > IMPORT_CACHE_MAX_AGE_MS) {
+                    fs.rmSync(target, { recursive: true, force: true });
+                }
+            } catch (e) {}
+        }
+    } catch (e) {
+        console.warn('Import cache init failed:', e.message);
+    }
+}
+
+function sanitizeFileName(name) {
+    return String(name || '导入文档').replace(/[\\/:*?"<>|]/g, '_').trim() || '导入文档';
+}
 
 const DEFAULT_FONT_SETTINGS = {
     enabled: false,
@@ -92,7 +147,7 @@ function createWindow() {
         frame: true,
         resizable: true,
         icon: ICON_PATH,
-        title: 'MTD - Markdown 转 Word',
+        title: 'ProTools - 文档与 Word 互转',
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
@@ -133,7 +188,7 @@ function createTray() {
         }
     ]);
 
-    tray.setToolTip('MTD - Markdown 转 Word');
+    tray.setToolTip('ProTools - 文档与 Word 互转');
     tray.setContextMenu(contextMenu);
 
     tray.on('click', () => {
@@ -438,13 +493,131 @@ function setupIPC() {
     ipcMain.handle('window:minimizeToTray', () => {
         if (mainWindow) mainWindow.hide();
     });
+
+    // ===== MarkItDown 文档导入 =====
+    ipcMain.handle('markitdown:status', () => sidecar.status());
+
+    ipcMain.handle('markitdown:warm', async () => {
+        try {
+            const info = await sidecar.start();
+            return { success: true, version: info.version };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('markitdown:pickFiles', async () => {
+        try {
+            const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+                title: '选择要转换的文档',
+                properties: ['openFile', 'multiSelections'],
+                filters: [
+                    {
+                        name: '支持的文档',
+                        extensions: [
+                            'pdf', 'docx', 'pptx', 'xlsx', 'xls', 'html', 'htm', 'epub', 'ipynb',
+                            'csv', 'txt', 'md', 'markdown', 'json', 'xml', 'zip', 'msg',
+                            'mp3', 'wav', 'm4a', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff'
+                        ]
+                    },
+                    { name: '所有文件', extensions: ['*'] }
+                ]
+            });
+            if (canceled || !filePaths || filePaths.length === 0) {
+                return { success: false, canceled: true };
+            }
+            return {
+                success: true,
+                files: filePaths.map((filePath) => {
+                    let sizeKB = 0;
+                    try { sizeKB = Math.round(fs.statSync(filePath).size / 1024); } catch (e) {}
+                    return { path: filePath, name: path.basename(filePath), sizeKB };
+                })
+            };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('markitdown:convert', async (event, filePath) => {
+        const started = Date.now();
+        try {
+            if (typeof filePath !== 'string' || !fs.existsSync(filePath)) {
+                return { success: false, error: '文件不存在或路径无效' };
+            }
+            const stat = fs.statSync(filePath);
+            if (stat.isDirectory()) {
+                return { success: false, error: '暂不支持文件夹，请选择具体文件' };
+            }
+            if (stat.size === 0) {
+                return { success: false, error: '文件内容为空' };
+            }
+
+            const cacheId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+            const assetsDir = path.join(IMPORT_CACHE_DIR, cacheId, 'assets');
+            const result = await sidecar.convert(filePath, { assetsDir, assetRef: 'assets' });
+
+            return {
+                success: true,
+                markdown: result.markdown,
+                title: result.title || path.basename(filePath, path.extname(filePath)),
+                chars: result.chars,
+                images: result.images || 0,
+                elapsedMs: result.elapsed_ms || (Date.now() - started),
+                sourceName: path.basename(filePath),
+                sourcePath: filePath,
+                sizeKB: Math.round(stat.size / 1024),
+                assetsDir: fs.existsSync(assetsDir) ? assetsDir : null
+            };
+        } catch (error) {
+            return { success: false, error: error.message || '转换失败' };
+        }
+    });
+
+    ipcMain.handle('markitdown:save', async (event, payload) => {
+        try {
+            const markdown = payload && typeof payload.markdown === 'string' ? payload.markdown : '';
+            if (!markdown) return { success: false, error: '没有可保存的内容' };
+
+            const defaultName = sanitizeFileName(payload.title) + '.md';
+            const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
+                title: '保存 Markdown 文档',
+                defaultPath: defaultName,
+                filters: [{ name: 'Markdown 文件', extensions: ['md'] }]
+            });
+            if (canceled || !filePath) return { success: false, canceled: true };
+
+            const stem = path.basename(filePath, path.extname(filePath));
+            let content = markdown;
+            let assetsCopied = 0;
+
+            const assetsDir = payload.assetsDir;
+            if (typeof assetsDir === 'string' && fs.existsSync(assetsDir)) {
+                const images = fs.readdirSync(assetsDir);
+                if (images.length > 0) {
+                    const destDir = path.join(path.dirname(filePath), stem + '.assets');
+                    fs.cpSync(assetsDir, destDir, { recursive: true });
+                    content = content.split('](assets/').join(`](${stem}.assets/`);
+                    assetsCopied = images.length;
+                }
+            }
+
+            fs.writeFileSync(filePath, content, 'utf8');
+            const sizeKB = Math.round(fs.statSync(filePath).size / 1024);
+            return { success: true, filePath, sizeKB, assetsCopied };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    });
 }
 
 // ===== 应用生命周期 =====
 app.whenReady().then(async () => {
+    migrateLegacyUserData();
     createWindow();
     createTray();
     setupIPC();
+    prepareImportCache();
 
     // 启动时检测 Pandoc
     serverApp.checkPandoc();
@@ -458,6 +631,7 @@ app.on('before-quit', (event) => {
     if (!isQuitting) {
         event.preventDefault();
         isQuitting = true;
+        sidecar.stop();
         app.quit();
     }
 });

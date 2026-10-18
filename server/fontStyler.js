@@ -1,9 +1,8 @@
-const AdmZip = require('adm-zip');
-
 /**
  * 修改 docx 文件中 styles.xml 的字体设置
  * @param {string} docxPath - docx 文件路径
  * @param {Object} fontSettings - 字体设置
+ * @param {Function} [ZipCtor] - adm-zip 构造器；打包后本目录无 node_modules，由调用方注入
  * @param {string} [fontSettings.fontFamily] - 中文字体（如 "宋体"）
  * @param {string} [fontSettings.fontFamilyEn] - 英文字体（如 "Times New Roman"）
  * @param {number} [fontSettings.bodySize] - 正文字号（磅）
@@ -14,7 +13,7 @@ const AdmZip = require('adm-zip');
  * @param {number} [fontSettings.h5Size] - 五级标题字号
  * @param {number} [fontSettings.h6Size] - 六级标题字号
  */
-function applyFontStyle(docxPath, fontSettings) {
+function applyFontStyle(docxPath, fontSettings, ZipCtor) {
     if (!fontSettings) return;
 
     const cnFont = fontSettings.fontFamily && fontSettings.fontFamily.trim();
@@ -34,7 +33,7 @@ function applyFontStyle(docxPath, fontSettings) {
 
     if (!hasFont && !hasBodySize && !hasHeadingSizes) return;
 
-    const zip = new AdmZip(docxPath);
+    const zip = new (ZipCtor || require('adm-zip'))(docxPath);
     let stylesXml = zip.readAsText('word/styles.xml');
     if (!stylesXml) return;
 

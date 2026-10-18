@@ -1,5 +1,5 @@
 /**
- * MTD 服务器 + 转换引擎封装
+ * ProTools 服务器 + 转换引擎封装
  * 支持 HTTP 服务器模式 + 直接调用转换模式
  */
 const express = require('express');
@@ -213,7 +213,7 @@ async function convertToDocx(options) {
         // 应用表格样式
         try {
             const { applyTableStyle } = getTableStyler();
-            applyTableStyle(outputFile, table_style);
+            applyTableStyle(outputFile, table_style, require('adm-zip'));
         } catch (styleErr) {
             console.warn('Table styling failed (non-fatal):', styleErr.message);
         }
@@ -222,7 +222,7 @@ async function convertToDocx(options) {
         if (font_settings && font_settings.enabled) {
             try {
                 const { applyFontStyle } = getFontStyler();
-                applyFontStyle(outputFile, font_settings);
+                applyFontStyle(outputFile, font_settings, require('adm-zip'));
             } catch (fontErr) {
                 console.warn('Font styling failed (non-fatal):', fontErr.message);
             }
@@ -310,7 +310,7 @@ function startServer(port = 3000) {
             const pandocStatus = checkPandoc();
             app = createExpressApp();
             server = app.listen(port, '0.0.0.0', () => {
-                console.log(`MTD Server running on http://localhost:${port}`);
+                console.log(`ProTools Server running on http://localhost:${port}`);
                 resolve({ success: true, port, pandoc: pandocStatus });
             });
             server.on('error', (err) => reject(err));

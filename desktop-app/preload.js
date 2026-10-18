@@ -1,5 +1,5 @@
 /**
- * MTD Desktop - 预加载脚本
+ * ProTools Desktop - 预加载脚本
  * 通过 contextBridge 安全暴露 API 给渲染进程
  */
 const { contextBridge, ipcRenderer } = require('electron');
@@ -47,5 +47,13 @@ contextBridge.exposeInMainWorld('superplugin', {
     // 窗口控制
     window: {
         minimizeToTray: () => ipcRenderer.invoke('window:minimizeToTray'),
+    },
+    // 文档导入（MarkItDown）
+    markitdown: {
+        status: () => ipcRenderer.invoke('markitdown:status'),
+        warm: () => ipcRenderer.invoke('markitdown:warm'),
+        pickFiles: () => ipcRenderer.invoke('markitdown:pickFiles'),
+        convert: (filePath) => ipcRenderer.invoke('markitdown:convert', filePath),
+        save: (payload) => ipcRenderer.invoke('markitdown:save', payload),
     },
 });

@@ -1,0 +1,4 @@
+# 只装本地转换所需依赖，刻意排除 Azure Document Intelligence / Content Understanding：
+# 云端解析按次计费且需要账号，不属于桌面端默认能力。
+markitdown[pdf,docx,pptx,xlsx,xls,outlook,audio-transcription,youtube-transcription]==0.1.8
+pyinstaller>=6.10

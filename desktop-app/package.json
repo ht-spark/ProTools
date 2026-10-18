@@ -1,9 +1,9 @@
 {
-  "name": "mtd-desktop",
-  "version": "1.0.0",
-  "description": "MTD 桌面应用 - AI对话导出Word文档，支持可编辑公式和表格",
+  "name": "protools-desktop",
+  "version": "1.1.0",
+  "description": "ProTools 桌面应用 - 文档转 Markdown、Markdown 转 Word，支持可编辑公式和表格",
   "main": "main.js",
-  "author": "MTD",
+  "author": "ProTools",
   "license": "ISC",
   "scripts": {
     "start": "electron .",
@@ -22,8 +22,8 @@
     "electron-builder": "^24.13.3"
   },
   "build": {
-    "appId": "com.mtd.desktop",
-    "productName": "MTD",
+    "appId": "com.protools.desktop",
+    "productName": "ProTools",
     "directories": {
       "output": "dist"
     },
@@ -31,6 +31,7 @@
       "main.js",
       "preload.js",
       "server-app.js",
+      "sidecar.js",
       "renderer/**/*",
       "node_modules/**/*"
     ],
@@ -48,6 +49,13 @@
           "!ecosystem.config.js",
           "!start-server.*",
           "!*.bat"
+        ]
+      },
+      {
+        "from": "../markitdown-sidecar/dist/markitdown-sidecar",
+        "to": "sidecar",
+        "filter": [
+          "**/*"
         ]
       },
       {
@@ -71,7 +79,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "MTD",
+      "shortcutName": "ProTools",
       "deleteAppDataOnUninstall": false
     }
   }

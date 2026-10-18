@@ -243,7 +243,7 @@ if (!pandocOk) {
 }
 
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`MTD Server running on http://localhost:${PORT}`);
+    console.log(`ProTools Server running on http://localhost:${PORT}`);
     console.log(`  Pandoc: ${PANDOC_PATH || 'NOT FOUND'}`);
     console.log(`  POST /convert`);
     console.log(`  GET  /health`);
