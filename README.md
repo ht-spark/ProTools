@@ -1,5 +1,6 @@
 ﻿# ProTools
 
+<<<<<<< HEAD
 面向 Windows 的双向文档转换工具：**任意文档 → Markdown**，以及 **Markdown + LaTeX → Word**。适用于把论文、报告、课件、扫描件转成可编辑文本，再回填为格式规范的 Word 文档。
 
 - 文档导入由 [MarkItDown](https://github.com/microsoft/markitdown)（Microsoft, MIT）驱动，覆盖 PDF / Office / 图片 / 音频 / 网页等 20+ 格式
@@ -32,10 +33,14 @@
 ```
 
 侧车选择常驻进程而非一次性调用：冷启动需加载 magika 模型（约 1.5 秒），复用后单次转换可降至 50–200 毫秒。
+=======
+将markdown导出为格式规范工整Word文档，支持可编辑的LaTeX公式和格式化表格（三线表 / 边框表）以及自定义字体设置。
+>>>>>>> a081b2ee6e4c97194c600906e7da5d03cf5d1d67
 
 ## 目录结构
 
 ```
+<<<<<<< HEAD
 plugin/
 ├── desktop-app/            # Electron 应用
 │   ├── main.js             # 主进程：窗口、托盘、IPC、历史与字体设置
@@ -59,6 +64,12 @@ plugin/
 │   ├── build.py            # PyInstaller onedir 打包与裁剪
 │   └── requirements.txt
 └── icons/                  # 多尺寸图标（ico / 16–512 png）
+=======
+MTD/
+├── desktop-app/   # Electron 桌面应用（界面 + 主进程）
+├── server/        # Markdown/LaTeX → DOCX 转换服务（基于 Pandoc）
+└── icons/         # 应用图标
+>>>>>>> a081b2ee6e4c97194c600906e7da5d03cf5d1d67
 ```
 
 ## 环境要求
