@@ -1,17 +1,16 @@
 ﻿# ProTools
 
-<<<<<<< HEAD
-面向 Windows 的双向文档转换工具：**任意文档 → Markdown**，以及 **Markdown + LaTeX → Word**。适用于把论文、报告、课件、扫描件转成可编辑文本，再回填为格式规范的 Word 文档。
+面向 Windows 的双向文档转换工具：任意文档 → Markdown，以及 Markdown + LaTeX → Word。适用于把论文、报告、课件、扫描件转成可编辑文本，再回填为格式规范的 Word 文档。
 
-- 文档导入由 [MarkItDown](https://github.com/microsoft/markitdown)（Microsoft, MIT）驱动，覆盖 PDF / Office / 图片 / 音频 / 网页等 20+ 格式
+- 文档导入由 [MarkItDown](https://github.com/microsoft/markitdown)驱动，覆盖 PDF / Office / 图片 / 音频 / 网页等 20+ 格式
 - 文档导出由 [Pandoc](https://pandoc.org/) 驱动，公式以 OMML 形式写入，Word 中可直接编辑；表格支持三线表与黑色框线
 
 ## 功能
 
-| 模块 | 输入 | 输出 | 关键能力 |
-|---|---|---|---|
-| 文档导入 | PDF、DOCX、PPTX、XLSX/XLS、HTML、EPUB、CSV、JSON、XML、ZIP、MSG、IPYNB、图片（含 EXIF）、音频、RSS | Markdown | 标题 / 列表 / 表格结构保留；内嵌图片自动落盘；多文件队列串行转换 |
-| 文档导出 | Markdown、纯文本 | DOCX | LaTeX 公式转 Word 原生公式；三线表 / 边框表；中英文字体与字号；目录、硬换行、编号控制 |
+| 模块     | 输入                                                                                               | 输出     | 关键能力                                                                              |
+| -------- | -------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------- |
+| 文档导入 | PDF、DOCX、PPTX、XLSX/XLS、HTML、EPUB、CSV、JSON、XML、ZIP、MSG、IPYNB、图片（含 EXIF）、音频、RSS | Markdown | 标题 / 列表 / 表格结构保留；内嵌图片自动落盘；多文件队列串行转换                      |
+| 文档导出 | Markdown、纯文本                                                                                   | DOCX     | LaTeX 公式转 Word 原生公式；三线表 / 边框表；中英文字体与字号；目录、硬换行、编号控制 |
 
 导入结果可一键「送入 Word 转换」，形成 **PDF → Markdown → 规范 Word** 的闭环。
 
@@ -33,9 +32,17 @@
 ```
 
 侧车选择常驻进程而非一次性调用：冷启动需加载 magika 模型（约 1.5 秒），复用后单次转换可降至 50–200 毫秒。
-=======
+==========================================================================================================
+
 将markdown导出为格式规范工整Word文档，支持可编辑的LaTeX公式和格式化表格（三线表 / 边框表）以及自定义字体设置。
+
 >>>>>>> a081b2ee6e4c97194c600906e7da5d03cf5d1d67
+>>>>>>>
+>>>>>>
+>>>>>
+>>>>
+>>>
+>>
 
 ## 目录结构
 
@@ -74,11 +81,11 @@ MTD/
 
 ## 环境要求
 
-| 场景 | 依赖 |
-|---|---|
+| 场景             | 依赖                                                                      |
+| ---------------- | ------------------------------------------------------------------------- |
 | 运行（终端用户） | Windows 10/11 x64、**Pandoc 3.x**（必需，需在 PATH 或标准安装目录） |
-| 开发 | 上一行 + Node.js 18+ |
-| 构建侧车 | 上一行 + Python 3.11、[uv](https://github.com/astral-sh/uv) |
+| 开发             | 上一行 + Node.js 18+                                                      |
+| 构建侧车         | 上一行 + Python 3.11、[uv](https://github.com/astral-sh/uv)                |
 
 ```bash
 winget install JohnMacFarlane.Pandoc
@@ -133,18 +140,18 @@ npm run build:dir      # 仅免安装目录
 
 ### 环境变量
 
-| 变量 | 作用 |
-|---|---|
+| 变量                      | 作用                                           |
+| ------------------------- | ---------------------------------------------- |
 | `PROTOOLS_SIDECAR_PATH` | 覆盖侧车可执行文件路径（调试或外置部署时使用） |
-| `MTD_SIDECAR_PATH` | 更名前的旧变量，仍兼容 |
+| `MTD_SIDECAR_PATH`      | 更名前的旧变量，仍兼容                         |
 
 ### 数据存放
 
-| 路径 | 内容 |
-|---|---|
+| 路径                                           | 内容                                              |
+| ---------------------------------------------- | ------------------------------------------------- |
 | `%APPDATA%\ProTools\conversion-history.json` | 转换历史（最多 100 条，仅文件名与时间，不含正文） |
-| `%APPDATA%\ProTools\font-settings.json` | 字体与字号设置 |
-| `%TEMP%\protools-markitdown-cache\` | 导入期间的内嵌图片，超过 24 小时自动清理 |
+| `%APPDATA%\ProTools\font-settings.json`      | 字体与字号设置                                    |
+| `%TEMP%\protools-markitdown-cache\`          | 导入期间的内嵌图片，超过 24 小时自动清理          |
 
 更名后的首次启动会自动从 `%APPDATA%\mtd-desktop` 迁移历史与字体设置（仅当目标不存在时复制）。
 
@@ -165,18 +172,18 @@ npm run build:dir      # 仅免安装目录
 
 ## 故障排查
 
-| 现象 | 原因与处理 |
-|---|---|
-| 转换提示「未找到 Pandoc」 | Pandoc 未安装或不在 PATH；`winget install JohnMacFarlane.Pandoc` 后点击「重新检测」 |
-| 导入提示「未找到 MarkItDown 运行组件」 | `resources/sidecar/markitdown-sidecar.exe` 缺失；重新构建侧车并打包 |
-| 首次导入等待 1–2 秒 | 侧车冷启动加载模型，属正常；进入导入页会提前预热 |
-| 打包报 `Cannot create symbolic link` / winCodeSign 下载失败 | 使用上文 `signAndEditExecutable=false` 方案，或开启 Windows 开发者模式 |
-| `npm start` 一闪而过 | 环境存在 `ELECTRON_RUN_AS_NODE=1`，Electron 会退化为 Node；启动前执行 `unset ELECTRON_RUN_AS_NODE`（Git Bash）或 `Remove-Item Env:ELECTRON_RUN_AS_NODE`（PowerShell） |
-| 侧车启动超时 | 检查杀毒软件是否拦截新生成的 exe；可设 `PROTOOLS_SIDECAR_PATH` 指向可执行副本定位问题 |
+| 现象                                                          | 原因与处理                                                                                                                                                                  |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 转换提示「未找到 Pandoc」                                     | Pandoc 未安装或不在 PATH；`winget install JohnMacFarlane.Pandoc` 后点击「重新检测」                                                                                       |
+| 导入提示「未找到 MarkItDown 运行组件」                        | `resources/sidecar/markitdown-sidecar.exe` 缺失；重新构建侧车并打包                                                                                                       |
+| 首次导入等待 1–2 秒                                          | 侧车冷启动加载模型，属正常；进入导入页会提前预热                                                                                                                            |
+| 打包报 `Cannot create symbolic link` / winCodeSign 下载失败 | 使用上文 `signAndEditExecutable=false` 方案，或开启 Windows 开发者模式                                                                                                    |
+| `npm start` 一闪而过                                        | 环境存在 `ELECTRON_RUN_AS_NODE=1`，Electron 会退化为 Node；启动前执行 `unset ELECTRON_RUN_AS_NODE`（Git Bash）或 `Remove-Item Env:ELECTRON_RUN_AS_NODE`（PowerShell） |
+| 侧车启动超时                                                  | 检查杀毒软件是否拦截新生成的 exe；可设 `PROTOOLS_SIDECAR_PATH` 指向可执行副本定位问题                                                                                     |
 
 ## 版本记录
 
-| 版本 | 变更 |
-|---|---|
+| 版本   | 变更                                                                                                                                                                                  |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | v1.1.0 | 集成 MarkItDown 文档导入（Python 侧车）；产品更名 MTD → ProTools；新增导入页与引擎状态卡片；用户数据迁移；导航改为「MD转docx / 文档转MD」；统一应用图标并修复安装版表格/字体样式失效 |
-| v1.0.0 | 首个版本：Markdown + LaTeX → Word，三线表 / 边框表，字体设置与转换历史 |
+| v1.0.0 | 首个版本：Markdown + LaTeX → Word，三线表 / 边框表，字体设置与转换历史                                                                                                               |
