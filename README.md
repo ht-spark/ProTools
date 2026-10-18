@@ -42,8 +42,11 @@ plugin/
 │   ├── preload.js          # contextBridge API
 │   ├── server-app.js       # Pandoc 封装（查找引擎、调用、样式后处理）
 │   ├── sidecar.js          # MarkItDown 侧车生命周期管理
-│   ├── renderer/           # index.html / app.js / style.css
-│   └── assets/             # 应用图标（开发态）
+│   ├── renderer/           # index.html / app.js / style.css / app-icon.png
+│   ├── assets/             # icon.ico（窗口、任务栏、安装包图标）
+│   ├── scripts/            # after-pack.js（打包后写入图标与版本信息）
+│   ├── tools/              # rcedit-x64.exe（图标写入，随仓库内置）
+│   └── .gitignore
 ├── server/                 # Markdown → DOCX 转换实现（可独立以 HTTP 服务运行）
 │   ├── index.js            # Express 接口：GET /health、POST /convert
 │   ├── tableStyler.js      # 用 adm-zip 改写 document.xml 注入表格样式
@@ -55,7 +58,7 @@ plugin/
 │   ├── sidecar.py          # JSON Lines 协议（ready / ping / convert）
 │   ├── build.py            # PyInstaller onedir 打包与裁剪
 │   └── requirements.txt
-└── icons/                  # 多尺寸图标
+└── icons/                  # 多尺寸图标（ico / 16–512 png）
 ```
 
 ## 环境要求
@@ -105,7 +108,7 @@ npm run build:dir      # 仅免安装目录
 
 构建前请确认 `markitdown-sidecar/dist/markitdown-sidecar/markitdown-sidecar.exe` 存在，否则安装包会缺少导入能力。
 
-**本机已知构建限制**：electron-builder 解压 `winCodeSign` 时会因 macOS 符号链接需要管理员权限而失败。可用以下方式绕开（代价：exe 不带自定义图标与版本元数据）：
+**本机已知构建限制**：electron-builder 解压 `winCodeSign` 时会因 macOS 符号链接需要管理员权限而失败。可用以下方式绕开：
 
 ```bash
 ./node_modules/.bin/electron-builder --win \
@@ -113,7 +116,7 @@ npm run build:dir      # 仅免安装目录
   --config.win.signAndEditExecutable=false
 ```
 
-`directories.output` 建议每次指向新目录，避免覆盖旧目录触发文件保护。
+图标与版本信息由 `build.afterPack` 钩子调用仓库内置的 `tools/rcedit-x64.exe` 补写，因此跳过 electron-builder 内置签名步骤不会丢失这些元数据，也不需要管理员权限。`directories.output` 建议每次指向新目录，避免覆盖旧目录触发文件保护。
 
 ## 配置
 
@@ -143,7 +146,7 @@ npm run build:dir      # 仅免安装目录
 
 ## 已知限制
 
-- 安装包 exe 使用 Electron 默认图标（受上述签名限制）；需自定义图标请在具备符号链接权限的终端重新构建。
+- 应用图标沿用 Electron 官方标志（深色圆形原子），仅作个人/内部使用；如需对外分发请替换为自有图标，并同步更新 `icons/`、`desktop-app/assets/icon.ico` 与 `renderer/app-icon.png`。
 - 未启用云端增强：Azure Document Intelligence / Content Understanding、LLM 图片描述与 OCR 插件均未接入，扫描版 PDF 仍只能取文本层。
 - 音频转写依赖在线识别接口（离线 pocketsphinx 模型已从发行包裁剪以减小体积），无网络时该能力不可用。
 - MarkItDown 输出面向 LLM 消费，复杂多栏版面、跨页表格的还原度有限；高保真排版请以原始文档为准。
@@ -164,5 +167,5 @@ npm run build:dir      # 仅免安装目录
 
 | 版本 | 变更 |
 |---|---|
-| v1.1.0 | 集成 MarkItDown 文档导入（Python 侧车）；产品更名 MTD → ProTools；新增导入页与引擎状态卡片；用户数据迁移 |
+| v1.1.0 | 集成 MarkItDown 文档导入（Python 侧车）；产品更名 MTD → ProTools；新增导入页与引擎状态卡片；用户数据迁移；导航改为「MD转docx / 文档转MD」；统一应用图标并修复安装版表格/字体样式失效 |
 | v1.0.0 | 首个版本：Markdown + LaTeX → Word，三线表 / 边框表，字体设置与转换历史 |

@@ -11,20 +11,7 @@
         <!-- ===== 侧边栏 ===== -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <svg width="32" height="32" viewBox="0 0 48 48" class="sidebar-logo">
-                    <defs>
-                        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0" stop-color="#6366F1"/>
-                            <stop offset="1" stop-color="#A855F7"/>
-                        </linearGradient>
-                    </defs>
-                    <rect width="48" height="48" rx="10" fill="url(#bg)"/>
-                    <rect x="12" y="12" width="24" height="29.76" fill="#FFFFFF"/>
-                    <polygon points="30,12 36,18 30,18" fill="#E4E4EC"/>
-                    <text x="24" y="27" font-family="'Segoe UI',Arial" font-size="13" font-weight="bold" fill="#6D28D9" text-anchor="middle">fx</text>
-                    <line x1="15.4" y1="31" x2="32.6" y2="31" stroke="#6D28D9" stroke-width="0.8" opacity="0.7"/>
-                    <line x1="15.4" y1="34.5" x2="25.9" y2="34.5" stroke="#6D28D9" stroke-width="0.8" opacity="0.7"/>
-                </svg>
+                <img src="app-icon.png" alt="ProTools" class="sidebar-logo" width="32" height="32">
                 <div class="sidebar-title">
                     <h1>ProTools</h1>
                     <span class="sidebar-subtitle">文档与 Word 互转</span>
@@ -34,11 +21,11 @@
             <nav class="sidebar-nav">
                 <button class="nav-item active" data-view="convert">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
-                    <span>转换</span>
+                    <span>MD转docx</span>
                 </button>
                 <button class="nav-item" data-view="import">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    <span>文档导入</span>
+                    <span>文档转MD</span>
                 </button>
                 <button class="nav-item" data-view="history">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -68,7 +55,7 @@
             <!-- ── 转换页面 ── -->
             <section class="view active" id="view-convert">
                 <div class="view-header">
-                    <h2>Markdown 转 Word</h2>
+                    <h2>MD 转 docx</h2>
                     <p class="view-desc">粘贴 Markdown 文本或上传 .md 文件，一键转换为 Word 文档</p>
                 </div>
 
@@ -168,7 +155,7 @@
             <!-- ── 文档导入页面 ── -->
             <section class="view" id="view-import">
                 <div class="view-header">
-                    <h2>文档转 Markdown</h2>
+                    <h2>文档转 MD</h2>
                     <p class="view-desc">导入 PDF、Word、PPT、Excel、图片、音频等格式，转换为可编辑的 Markdown，可继续送去做 Word</p>
                 </div>
 

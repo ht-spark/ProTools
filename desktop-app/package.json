@@ -24,6 +24,7 @@
   "build": {
     "appId": "com.protools.desktop",
     "productName": "ProTools",
+    "afterPack": "scripts/after-pack.js",
     "directories": {
       "output": "dist"
     },
