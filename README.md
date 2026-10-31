@@ -11,6 +11,17 @@
 
 ## 功能介绍
 
+### 面向谁
+
+ProTools 面向需要频繁在「原始文档」与「Markdown」之间往返的 Windows 用户：把别人给的 PDF / Office 文件变成可编辑文本，再把自己的 Markdown 笔记变成可直接交付的 Word。
+
+| 人群 | 典型场景 |
+| --- | --- |
+| 研究生 / 科研人员 | 论文、实验报告、课件转成 Markdown 做笔记与检索；成稿后把含 LaTeX 公式的 Markdown 排回 Word 投稿 |
+| 学生 / 教师 | 讲义、试卷、参考资料双向转换，保留标题层级与表格结构 |
+| 办公 / 内容岗 | 合同、会议纪要、白皮书从 PDF / Office 转成可二次编辑的纯文本 |
+| 开发者 / 技术写手 | 文档以 Markdown 维护，交付或对外发布时导出格式规范的 DOCX |
+
 ### 双向转换
 
 | 模块 | 输入 | 输出 | 关键能力 |
@@ -185,30 +196,3 @@ MTD/
 1. **文档 → Markdown**：拖入或选择文件 → 转换 → 预览 → 可「复制」「保存 .md」「送入 Word 转换」。
 2. **保存 .md 时的图片**：正文中的 base64 图片会写成独立文件，随文档保存为同名 `.assets` 目录，Markdown 引用同步改写为该目录相对路径。
 3. **Markdown → Word**：粘贴或载入 `.md`，设置标题、表格样式与格式选项，导出由系统保存对话框决定位置。
-
-## 已知限制
-
-- 应用图标沿用 Electron 官方标志（深色圆形原子），仅作个人/内部使用；如需对外分发请替换为自有图标，并同步更新 `icons/icon.ico`、`desktop-app/assets/icon.ico` 与 `renderer/app-icon.png`。
-- 未启用云端增强：Azure Document Intelligence / Content Understanding、LLM 图片描述与 OCR 插件均未接入，扫描版 PDF 仍只能取文本层。
-- 音频转写依赖在线识别接口（离线 pocketsphinx 模型已从发行包裁剪以减小体积），无网络时该能力不可用。
-- MarkItDown 输出面向 LLM 消费，复杂多栏版面、跨页表格的还原度有限；高保真排版请以原始文档为准。
-- 多文件导入为串行处理，单次转换超时 120 秒，超时后侧车会自动重启。
-
-## 故障排查
-
-| 现象 | 原因与处理 |
-| --- | --- |
-| 转换提示「未找到 Pandoc」 | Pandoc 未安装或不在 PATH；`winget install JohnMacFarlane.Pandoc` 后点击「重新检测」 |
-| 导入提示「未找到 MarkItDown 运行组件」 | `resources/sidecar/markitdown-sidecar.exe` 缺失；重新构建侧车并打包 |
-| 首次导入等待 1–2 秒 | 侧车冷启动加载模型，属正常；进入导入页会提前预热 |
-| 打包报 `Cannot create symbolic link` / winCodeSign 下载失败 | 使用上文 `signAndEditExecutable=false` 方案，或开启 Windows 开发者模式 |
-| `npm start` 一闪而过 | 环境存在 `ELECTRON_RUN_AS_NODE=1`，Electron 会退化为 Node；启动前执行 `unset ELECTRON_RUN_AS_NODE`（Git Bash）或 `Remove-Item Env:ELECTRON_RUN_AS_NODE`（PowerShell） |
-| 侧车启动超时 | 检查杀毒软件是否拦截新生成的 exe；可设 `PROTOOLS_SIDECAR_PATH` 指向可执行副本定位问题 |
-| SmartScreen 拦截安装 | 安装包未签名；点「更多信息 → 仍要运行」，或对 exe 做代码签名后再分发 |
-
-## 版本记录
-
-| 版本 | 变更 |
-| --- | --- |
-| v1.1.0 | 集成 MarkItDown 文档导入（Python 侧车）；产品更名 MTD → ProTools；新增导入页与引擎状态卡片；用户数据迁移；导航改为「MD转docx / 文档转MD」；统一应用图标并修复安装版表格/字体样式失效；首个 Release 发行包 |
-| v1.0.0 | 首个版本：Markdown + LaTeX → Word，三线表 / 边框表，字体设置与转换历史 |
