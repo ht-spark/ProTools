@@ -9,6 +9,13 @@ desktop-app/dist-*/
 desktop-app/tmp-build/
 server/logs/
 
+# 本地安装包与打包验证残留（安装包 131MB，超过 GitHub 单文件 100MB 上限）
+desktop-app/*.exe
+desktop-app/_verify_extract/
+
+# 本地智能体工作数据（记忆、缓存）
+.workbuddy/
+
 # 本地调试用的 Chromium 配置目录
 desktop-app/.devdata/
 desktop-app/.pkgdata*/
