@@ -14,23 +14,23 @@
                 <img src="app-icon.png" alt="ProTools" class="sidebar-logo" width="32" height="32">
                 <div class="sidebar-title">
                     <h1>ProTools</h1>
-                    <span class="sidebar-subtitle">文档与 Word 互转</span>
                 </div>
             </div>
 
             <nav class="sidebar-nav">
                 <button class="nav-item active" data-view="convert">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
-                    <span>MD转docx</span>
+                    <span>Markdown 转 Word</span>
                 </button>
                 <button class="nav-item" data-view="import">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    <span>文档转MD</span>
+                    <span>文档转 Markdown</span>
                 </button>
                 <button class="nav-item" data-view="history">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    <span>历史记录</span>
+                    <span>转换历史</span>
                 </button>
+                <div class="nav-divider"></div>
                 <button class="nav-item" data-view="status">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
                     <span>引擎状态</span>
@@ -55,8 +55,9 @@
             <!-- ── 转换页面 ── -->
             <section class="view active" id="view-convert">
                 <div class="view-header">
-                    <h2>MD 转 docx</h2>
-                    <p class="view-desc">粘贴 Markdown 文本或上传 .md 文件，一键转换为 Word 文档</p>
+                    <span class="view-eyebrow">Markdown → Docx</span>
+                    <h2>Markdown 转 Word</h2>
+                    <p class="view-desc">粘贴 Markdown 或拖入 .md 文件，生成可直接编辑的 Word 文档。表格、公式、代码块按原样保留。</p>
                 </div>
 
                 <!-- 文件上传区 -->
@@ -64,23 +65,33 @@
                     <div class="upload-inner" id="uploadInner">
                         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                         <div class="upload-text">
-                            <span class="upload-title">上传 Markdown 文件</span>
-                            <span class="upload-hint">点击选择或拖拽 .md / .txt 文件到此处</span>
+                            <span class="upload-title">上传 .md 文件</span>
+                            <span class="upload-hint">点击选择，或把文件拖到这里 · 支持 .md / .markdown / .txt</span>
                         </div>
+                        <span class="upload-aside">读取后自动填入下方</span>
                     </div>
                     <input type="file" id="fileInput" accept=".md,.markdown,.txt" style="display:none;">
                 </div>
 
+                <!-- 转换结果 -->
+                <div class="result-banner" id="resultBanner" style="display:none;"></div>
+
                 <!-- 转换表单 -->
                 <div class="convert-form">
                     <div class="form-group">
-                        <label>文档标题</label>
-                        <input type="text" id="docTitle" placeholder="输入文档标题" value="AI对话导出">
+                        <div class="field-head">
+                            <label for="docTitle">文档标题</label>
+                            <span class="field-hint">写入 Word 属性，并作为保存时的默认文件名</span>
+                        </div>
+                        <input type="text" id="docTitle" placeholder="例如：第三章 模型求解" value="AI对话导出">
                     </div>
 
                     <div class="form-group">
-                        <label>Markdown 内容</label>
-                        <textarea id="markdownInput" placeholder="在此粘贴 Markdown 格式文本...&#10;&#10;支持：标题、段落、列表、表格、数学公式 ($...$ / $$...$$)、代码块、图片引用"></textarea>
+                        <div class="field-head">
+                            <label for="markdownInput">Markdown 内容</label>
+                            <span class="field-hint">标题 · 列表 · 表格 · 公式 · 代码块 · 图片</span>
+                        </div>
+                        <textarea id="markdownInput" placeholder="在这里粘贴 Markdown…"></textarea>
                         <div class="textarea-info">
                             <span id="charCount">0 字符</span>
                             <span id="fileNameDisplay" class="file-name-display" style="display:none;"></span>
@@ -92,6 +103,7 @@
                         <button class="options-toggle" id="optionsToggle">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                             <span>转换选项</span>
+                            <span class="options-toggle-hint">决定 Word 的表格与段落样式</span>
                         </button>
                         <div class="options-content" id="optionsContent">
                             <div class="options-grid">
@@ -104,9 +116,10 @@
                                         </label>
                                         <label class="radio-pill">
                                             <input type="radio" name="tableStyle" value="bordered">
-                                            <span>黑色框线</span>
+                                            <span>全框线</span>
                                         </label>
                                     </div>
+                                    <p class="option-desc">三线表贴近学术论文版式；全框线适合参数、数据密集的表格。</p>
                                 </div>
                                 <div class="option-group">
                                     <label class="option-label">格式选项</label>
@@ -128,12 +141,13 @@
                                             <span>生成目录</span>
                                         </label>
                                     </div>
+                                    <p class="option-desc">硬换行与禁用自动编号，用于保留原文的换行和编号结构。</p>
                                 </div>
                             </div>
                             <!-- 转换注释（可选） -->
                             <div class="option-group" style="margin-top:12px;">
-                                <label class="option-label">转换注释（可选）</label>
-                                <input type="text" id="convertNote" class="note-input" placeholder="为本次转换添加备注，方便日后查找">
+                                <label class="option-label" for="convertNote">备注</label>
+                                <input type="text" id="convertNote" class="note-input" placeholder="仅写入本地历史记录，方便日后检索">
                             </div>
                         </div>
                     </div>
@@ -141,31 +155,32 @@
                     <!-- 操作按钮 -->
                     <div class="convert-actions">
                         <button class="btn btn-primary btn-lg" id="btnConvert">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
                             <span>转换为 Word</span>
+                            <span class="btn-kbd">Ctrl ↵</span>
                         </button>
                         <button class="btn btn-secondary" id="btnClear">清空</button>
                     </div>
                 </div>
-
-                <!-- 转换结果 -->
-                <div class="result-banner" id="resultBanner" style="display:none;"></div>
             </section>
 
             <!-- ── 文档导入页面 ── -->
             <section class="view" id="view-import">
                 <div class="view-header">
-                    <h2>文档转 MD</h2>
-                    <p class="view-desc">导入 PDF、Word、PPT、Excel、图片、音频等格式，转换为可编辑的 Markdown，可继续送去做 Word</p>
+                    <span class="view-eyebrow">Any → Markdown</span>
+                    <h2>文档转 Markdown</h2>
+                    <p class="view-desc">PDF、Word、PPT、Excel、图片、音频都能读成 Markdown，结果可继续送去排版成 Word。</p>
                 </div>
 
                 <!-- 导入区 -->
-                <div class="upload-zone" id="importZone">
-                    <div class="upload-inner">
-                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        <div class="upload-text">
-                            <span class="upload-title">导入任意文档</span>
-                            <span class="upload-hint">点击选择或拖拽文件到此处（PDF / DOCX / PPTX / XLSX / 图片 / 音频 / HTML / EPUB / CSV …）</span>
+                <div class="upload-zone upload-zone-lg" id="importZone">
+                    <div class="upload-drop">
+                        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <span class="upload-title">导入文档</span>
+                        <span class="upload-hint">点击选择文件，或直接拖进来 · 支持一次多选</span>
+                        <div class="format-chips">
+                            <span>PDF</span><span>DOCX</span><span>PPTX</span><span>XLSX</span>
+                            <span>图片</span><span>音频</span><span>HTML</span><span>EPUB</span><span>CSV</span>
                         </div>
                     </div>
                     <input type="file" id="importFileInput" multiple style="display:none;">
@@ -177,7 +192,7 @@
                 <!-- 转换按钮 -->
                 <div class="convert-actions">
                     <button class="btn btn-primary btn-lg" id="btnImport">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                         <span>转换为 Markdown</span>
                     </button>
                     <button class="btn btn-secondary" id="btnImportClear">清空</button>
@@ -189,14 +204,17 @@
                 <div class="convert-form" id="importResult" style="display:none;">
                     <div class="convert-actions import-actions">
                         <button class="btn btn-primary" id="btnSendToWord">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
                             <span>送入 Word 转换</span>
                         </button>
                         <button class="btn btn-secondary" id="btnCopyMd">复制 Markdown</button>
                         <button class="btn btn-outline" id="btnSaveMd">保存 .md</button>
                     </div>
                     <div class="form-group">
-                        <label>Markdown 结果<span class="import-source" id="importSource"></span></label>
+                        <div class="field-head">
+                            <label for="importOutput">Markdown 结果<span class="import-source" id="importSource"></span></label>
+                            <span class="field-hint">只读预览 · 可复制或另存为 .md</span>
+                        </div>
                         <textarea id="importOutput" readonly placeholder="转换结果将显示在这里"></textarea>
                         <div class="textarea-info">
                             <span id="importChars">0 字符</span>
@@ -204,18 +222,21 @@
                         </div>
                     </div>
                 </div>
+
+                <p class="privacy-note">转换全部在本机完成，文件不会上传到任何服务器</p>
             </section>
 
             <!-- ── 历史记录页面 ── -->
             <section class="view" id="view-history">
                 <div class="view-header">
+                    <span class="view-eyebrow">Archive</span>
                     <h2>转换历史</h2>
-                    <p class="view-desc">查看过往的转换记录，可添加注释方便日后查找</p>
+                    <p class="view-desc">每次成功转换都会留档：文件名、时间与备注。文档内容本身不保存，也不离开本机。</p>
                 </div>
                 <div class="history-toolbar">
                     <span class="history-count" id="historyCount">共 0 条记录</span>
                     <button class="btn btn-outline btn-sm" id="btnClearHistory">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                         清空全部
                     </button>
                 </div>
@@ -223,6 +244,7 @@
                     <div class="empty-state">
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                         <p>暂无转换记录</p>
+                        <span class="empty-hint">完成一次转换后，文件名、时间与备注会记录在这里</span>
                     </div>
                 </div>
             </section>
@@ -230,8 +252,9 @@
             <!-- ── 引擎状态页面 ── -->
             <section class="view" id="view-status">
                 <div class="view-header">
+                    <span class="view-eyebrow">Engines</span>
                     <h2>引擎状态</h2>
-                    <p class="view-desc">查看 Pandoc 与 MarkItDown 引擎的安装状态和版本信息</p>
+                    <p class="view-desc">两个引擎各管一段：Pandoc 把 Markdown 排成 Word，MarkItDown 把各类文档读成 Markdown。两者就绪才能完成往返转换。</p>
                 </div>
                 <div class="status-cards">
                     <div class="status-card" id="pandocCard">
@@ -313,8 +336,8 @@
                             </div>
                         </div>
                         <div class="status-card-body">
-                            <p class="info-text">Pandoc 是一款通用的文档转换工具，ProTools 使用它将 Markdown 转换为 Word 文档。</p>
-                            <p class="info-text">如果未安装 Pandoc，请点击「下载 Pandoc」前往官网下载安装。安装后点击「重新检测」即可。</p>
+                            <p class="info-text">Pandoc 负责把 Markdown 排版成 Word。ProTools 调用它生成 .docx，并额外处理表格样式与公式。</p>
+                            <p class="info-text">若显示「未安装」，点「下载 Pandoc」前往官网安装，装好后回到这里点「重新检测」。</p>
                         </div>
                     </div>
                 </div>
@@ -323,8 +346,9 @@
             <!-- ── 设置页面 ── -->
             <section class="view" id="view-settings">
                 <div class="view-header">
+                    <span class="view-eyebrow">Preferences</span>
                     <h2>应用设置</h2>
-                    <p class="view-desc">配置 ProTools 桌面应用的行为选项</p>
+                    <p class="view-desc">调整启动行为、托盘策略，以及生成 Word 时使用的字体与字号。</p>
                 </div>
                 <div class="settings-cards">
                     <div class="settings-card">
@@ -335,7 +359,7 @@
                             <label class="setting-item">
                                 <div class="setting-info">
                                     <span class="setting-title">开机自启动</span>
-                                    <span class="setting-desc">系统开机时自动启动 ProTools</span>
+                                    <span class="setting-desc">登录 Windows 后自动打开 ProTools</span>
                                 </div>
                                 <div class="toggle">
                                     <input type="checkbox" id="autoLaunchToggle">
@@ -345,7 +369,7 @@
                             <label class="setting-item">
                                 <div class="setting-info">
                                     <span class="setting-title">关闭窗口时最小化</span>
-                                    <span class="setting-desc">点击关闭按钮时隐藏到系统托盘</span>
+                                    <span class="setting-desc">点关闭按钮时收进托盘，而不是退出程序</span>
                                 </div>
                                 <div class="toggle">
                                     <input type="checkbox" id="minimizeToggle" checked>
@@ -397,11 +421,13 @@
                             </div>
 
                             <!-- 正文字号 -->
-                            <div class="font-size-row">
-                                <label class="font-size-label">正文</label>
-                                <div class="font-size-input">
-                                    <input type="number" id="bodySizeInput" min="6" max="72" value="12">
-                                    <span class="font-size-unit">pt</span>
+                            <div class="font-size-grid">
+                                <div class="font-size-row">
+                                    <label class="font-size-label">正文</label>
+                                    <div class="font-size-input">
+                                        <input type="number" id="bodySizeInput" min="6" max="72" value="12">
+                                        <span class="font-size-unit">pt</span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -457,7 +483,7 @@
                                 <button class="btn btn-primary btn-sm" id="btnSaveFontSettings">保存设置</button>
                                 <button class="btn btn-outline btn-sm" id="btnResetFontSettings">恢复默认</button>
                             </div>
-                            <p class="font-hint">设置仅对新生成的文档生效，关闭开关后使用 Pandoc 默认样式</p>
+                            <p class="font-hint">只对之后生成的文档生效；关闭开关则沿用 Pandoc 默认样式。</p>
                         </div>
                     </div>
 

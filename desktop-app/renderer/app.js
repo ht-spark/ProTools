@@ -242,10 +242,13 @@
             } else {
                 showResultBanner(false, null, result.error);
                 setFooter('转换失败: ' + (result.error || '未知错误'));
+                // 引擎缺失类失败：立即复查，把过期的「已安装」状态纠正过来
+                if (/pandoc/i.test(String(result.error || ''))) checkPandoc({ silent: true });
             }
         } catch (err) {
             showResultBanner(false, null, err.message);
             setFooter('转换失败: ' + err.message);
+            if (/pandoc/i.test(String(err.message || ''))) checkPandoc({ silent: true });
         } finally {
             els.btnConvert.classList.remove('loading');
             els.btnConvert.disabled = false;
@@ -317,18 +320,49 @@
     }
 
     // ===== Pandoc 状态 =====
-    async function checkPandoc() {
-        els.pandocBadge.textContent = '检查中...';
-        els.pandocBadge.className = 'badge checking';
-        els.pandocDot.className = 'status-dot';
-        els.pandocStatusText.textContent = '检查中...';
-        els.pandocDotSidebar.className = 'status-dot';
-        els.pandocStatusSidebar.textContent = '检查中';
+    // 静默复查的最小间隔：窗口频繁聚焦时避免反复拉起 pandoc --version 子进程
+    const PANDOC_RECHECK_INTERVAL_MS = 3000;
+    let lastPandocRecheckAt = 0;
+
+    /**
+     * 窗口重新获得焦点时复查引擎。
+     * 覆盖两种状态漂移：装完 Pandoc 回到应用、以及应用运行期间卸载了 Pandoc。
+     */
+    function schedulePandocRecheck() {
+        const now = Date.now();
+        if (now - lastPandocRecheckAt < PANDOC_RECHECK_INTERVAL_MS) return;
+        lastPandocRecheckAt = now;
+        checkPandoc({ silent: true });
+    }
+
+    /**
+     * @param {{silent?: boolean}} [options] silent 为真时不显示「检查中」过渡态，
+     *        仅在结果与当前状态不一致时给一次页脚提示。
+     */
+    async function checkPandoc(options = {}) {
+        const silent = Boolean(options && options.silent);
+        const wasReady = pandocReady;
+
+        if (!silent) {
+            els.pandocBadge.textContent = '检查中...';
+            els.pandocBadge.className = 'badge checking';
+            els.pandocDot.className = 'status-dot';
+            els.pandocStatusText.textContent = '检查中...';
+            els.pandocDotSidebar.className = 'status-dot';
+            els.pandocStatusSidebar.textContent = '检查中';
+        }
 
         try {
             const result = await sp.pandoc.check();
             updatePandocUI(result);
+
+            if (silent) {
+                if (!wasReady && result.found) setFooter('已检测到 Pandoc，可以开始转换');
+                else if (wasReady && !result.found) setFooter('Pandoc 已不可用，请重新安装');
+            }
         } catch (err) {
+            // 静默复查失败时保留原有状态，避免把偶发错误显示成「检测失败」
+            if (silent) return;
             els.pandocBadge.textContent = '错误';
             els.pandocBadge.className = 'badge stopped';
             els.pandocStatusText.textContent = '检测失败';
@@ -416,6 +450,7 @@
                 <div class="empty-state">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                     <p>暂无转换记录</p>
+                    <span class="empty-hint">完成一次转换后，文件名、时间与备注会记录在这里</span>
                 </div>
             `;
             return;
@@ -1125,9 +1160,14 @@
         els.btnClearHistory.addEventListener('click', clearAllHistory);
 
         // Pandoc
-        els.btnCheckPandoc.addEventListener('click', checkPandoc);
+        els.btnCheckPandoc.addEventListener('click', () => checkPandoc());
         els.btnInstallPandoc.addEventListener('click', () => {
             sp.shell.openExternal('https://pandoc.org/installing.html');
+        });
+        // 窗口重新聚焦或从后台切回时静默复查：装完 Pandoc 无需手动点「重新检测」
+        window.addEventListener('focus', schedulePandocRecheck);
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) schedulePandocRecheck();
         });
         els.btnCheckMdEngine.addEventListener('click', checkMarkitdown);
 
