@@ -70,7 +70,7 @@ plugin/
 │   ├── sidecar.py          # JSON Lines 协议（ready / ping / convert）
 │   ├── build.py            # PyInstaller onedir 打包与裁剪
 │   └── requirements.txt
-└── icons/                  # 多尺寸图标（ico / 16–512 png）
+└── icons/                  # 应用图标（icon.ico，含 16/24/32/48/64/128/256 帧）
 =======
 MTD/
 ├── desktop-app/   # Electron 桌面应用（界面 + 主进程）
