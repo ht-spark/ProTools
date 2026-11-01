@@ -126,6 +126,11 @@ function addHistoryRecord(record) {
     saveHistory(records);
 }
 
+// 批量转换时可能在同一毫秒内产生多条记录，id 需带随机后缀
+function newHistoryId() {
+    return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
+}
+
 function deleteHistoryRecord(id) {
     const records = loadHistory();
     const filtered = records.filter(r => r.id !== id);
@@ -147,7 +152,7 @@ function createWindow() {
         frame: true,
         resizable: true,
         icon: ICON_PATH,
-        title: 'ProTools - 文档与 Word 互转',
+        title: 'ProTools',
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
@@ -279,13 +284,16 @@ function setupIPC() {
 
             const sizeKB = Math.round(fs.statSync(filePath).size / 1024);
 
-            // 记录历史 - 只保存时间、文件名、输出文件名，不保存内容
+            // 记录历史 - 只保存时间、方向、文件名、输出文件名，不保存内容
             const historyRecord = {
-                id: Date.now().toString(),
+                id: newHistoryId(),
                 timestamp: new Date().toISOString(),
+                type: 'docx',
                 sourceFileName: options.sourceFileName || null,
                 outputFileName: path.basename(filePath),
                 note: options.note || '',
+                durationMs: result.timeMs || null,
+                sizeKB: sizeKB,
             };
             addHistoryRecord(historyRecord);
 
@@ -557,14 +565,33 @@ function setupIPC() {
             const assetsDir = path.join(IMPORT_CACHE_DIR, cacheId, 'assets');
             const result = await sidecar.convert(filePath, { assetsDir, assetRef: 'assets' });
 
+            const elapsedMs = result.elapsed_ms || (Date.now() - started);
+            const sourceName = path.basename(filePath);
+            const title = result.title || path.basename(filePath, path.extname(filePath));
+
+            // 记录转 Markdown 的历史（与转 Word 共用一份列表，用 type 区分）
+            try {
+                addHistoryRecord({
+                    id: newHistoryId(),
+                    timestamp: new Date().toISOString(),
+                    type: 'md',
+                    sourceFileName: sourceName,
+                    outputFileName: title + '.md',
+                    note: '',
+                    durationMs: elapsedMs,
+                    chars: result.chars || 0,
+                    images: result.images || 0,
+                });
+            } catch (e) {}
+
             return {
                 success: true,
                 markdown: result.markdown,
-                title: result.title || path.basename(filePath, path.extname(filePath)),
+                title: title,
                 chars: result.chars,
                 images: result.images || 0,
-                elapsedMs: result.elapsed_ms || (Date.now() - started),
-                sourceName: path.basename(filePath),
+                elapsedMs: elapsedMs,
+                sourceName: sourceName,
                 sourcePath: filePath,
                 sizeKB: Math.round(stat.size / 1024),
                 assetsDir: fs.existsSync(assetsDir) ? assetsDir : null

@@ -450,7 +450,7 @@
                 <div class="empty-state">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                     <p>暂无转换记录</p>
-                    <span class="empty-hint">完成一次转换后，文件名、时间与备注会记录在这里</span>
+                    <span class="empty-hint">完成一次转换后，方向、时间与源文件会记录在这里</span>
                 </div>
             `;
             return;
@@ -458,10 +458,39 @@
 
         const html = records.map(r => {
             const date = new Date(r.timestamp);
-            const dateStr = formatTime(date);
+            // 旧记录没有 type 字段，一律视为转 Word
+            const isMd = r.type === 'md';
             const outputName = escapeHtml(r.outputFileName || r.title || '未命名文档');
             const sourceName = r.sourceFileName ? escapeHtml(r.sourceFileName) : null;
             const noteText = r.note ? escapeHtml(r.note) : '';
+
+            // 元信息：转换时间 · 源文件 · 耗时 · 体量
+            const metaItems = [];
+            metaItems.push(`<span class="meta-item" title="转换时间">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>${formatDateTime(date)}</span>
+            </span>`);
+            if (sourceName) {
+                metaItems.push(`<span class="meta-item meta-source" title="原始文档：${sourceName}">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <span class="meta-text">源：${sourceName}</span>
+                </span>`);
+            }
+            if (r.durationMs) {
+                metaItems.push(`<span class="meta-item" title="转换耗时">${(r.durationMs / 1000).toFixed(1)} 秒</span>`);
+            }
+            if (isMd && r.chars) {
+                metaItems.push(`<span class="meta-item" title="Markdown 字符数">${r.chars.toLocaleString()} 字符</span>`);
+                if (r.images) {
+                    metaItems.push(`<span class="meta-item" title="随文档导出的图片数量">${r.images} 张图</span>`);
+                }
+            } else if (r.sizeKB) {
+                metaItems.push(`<span class="meta-item" title="文件大小">${r.sizeKB} KB</span>`);
+            }
+
+            const typeIcon = isMd
+                ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'
+                : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>';
 
             // 注释区域：有注释显示注释+编辑按钮，无注释显示添加按钮
             let noteSection;
@@ -483,18 +512,18 @@
 
             return `
                 <div class="history-item" data-id="${r.id}">
-                    <div class="history-item-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <div class="history-item-icon ${isMd ? 'md' : 'docx'}">
+                        ${typeIcon}
                     </div>
                     <div class="history-item-body">
                         <div class="history-item-title">${outputName}</div>
                         <div class="history-item-meta">
-                            <span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${dateStr}</span>
-                            ${sourceName ? `<span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>源: ${sourceName}</span>` : ''}
+                            ${metaItems.join('')}
                         </div>
                         ${noteSection}
                     </div>
                     <div class="history-item-actions">
+                        <span class="history-tag ${isMd ? 'md' : 'docx'}">${isMd ? '转 Markdown' : '转 Word'}</span>
                         <button class="icon-btn danger" title="删除记录" onclick="window._superplugin.deleteHistory('${r.id}')">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                         </button>
@@ -587,18 +616,9 @@
         els.footerText.textContent = text;
     }
 
-    function formatTime(date) {
-        const now = new Date();
-        const diff = now - date;
-        const minutes = Math.floor(diff / 60000);
-        const hours = Math.floor(diff / 3600000);
-        const days = Math.floor(diff / 86400000);
-
-        if (minutes < 1) return '刚刚';
-        if (minutes < 60) return minutes + ' 分钟前';
-        if (hours < 24) return hours + ' 小时前';
-        if (days < 7) return days + ' 天前';
-
+    // 绝对时间：历史记录要能一眼对上是哪一次转换
+    function formatDateTime(date) {
+        if (isNaN(date.getTime())) return '时间未知';
         const y = date.getFullYear();
         const m = String(date.getMonth() + 1).padStart(2, '0');
         const d = String(date.getDate()).padStart(2, '0');

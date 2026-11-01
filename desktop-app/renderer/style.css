@@ -80,7 +80,7 @@ body {
     font-family: var(--font-sans);
     background: var(--paper);
     color: var(--ink);
-    font-size: 13.5px;
+    font-size: 15.5px;
     line-height: 1.6;
     overflow: hidden;
 }
@@ -147,7 +147,7 @@ body::after {
 
 .sidebar-title h1 {
     font-family: var(--font-serif);
-    font-size: 16.5px;
+    font-size: 18.5px;
     font-weight: 700;
     color: var(--ink);
     line-height: 1.2;
@@ -172,7 +172,7 @@ body::after {
     border: 1px solid transparent;
     background: transparent;
     color: var(--ink-2);
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 500;
     cursor: pointer;
     border-radius: var(--radius-sm);
@@ -221,7 +221,7 @@ body::after {
     margin-left: auto;
     background: var(--accent-soft);
     color: var(--accent-deep);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
     padding: 1px 7px;
     border-radius: 4px;
@@ -242,13 +242,13 @@ body::after {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 11px;
+    font-size: 13px;
     color: var(--ink-3);
 }
 
 .sidebar-version {
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: 12px;
     color: var(--ink-4);
     letter-spacing: .02em;
 }
@@ -284,7 +284,7 @@ body::after {
 .view-eyebrow {
     display: block;
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: 12px;
     letter-spacing: .14em;
     text-transform: uppercase;
     color: var(--accent-deep);
@@ -294,7 +294,7 @@ body::after {
 
 .view-header h2 {
     font-family: var(--font-serif);
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
     color: var(--ink);
     line-height: 1.35;
@@ -303,7 +303,7 @@ body::after {
 }
 
 .view-desc {
-    font-size: 12.5px;
+    font-size: 14.5px;
     color: var(--ink-2);
     line-height: 1.7;
     text-wrap: pretty;
@@ -359,13 +359,13 @@ body::after {
 }
 
 .upload-title {
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--ink);
 }
 
 .upload-hint {
-    font-size: 11.5px;
+    font-size: 13.5px;
     color: var(--ink-3);
     line-height: 1.6;
 }
@@ -374,7 +374,7 @@ body::after {
 .upload-aside {
     margin-left: auto;
     font-family: var(--font-mono);
-    font-size: 10.5px;
+    font-size: 12.5px;
     color: var(--ink-3);
     flex-shrink: 0;
     opacity: .9;
@@ -426,8 +426,8 @@ body::after {
     background: #dbeeea;
 }
 
-.upload-drop .upload-title { font-size: 15px; }
-.upload-drop .upload-hint { font-size: 12px; }
+.upload-drop .upload-title { font-size: 17px; }
+.upload-drop .upload-hint { font-size: 14px; }
 
 .format-chips {
     display: flex;
@@ -440,7 +440,7 @@ body::after {
 
 .format-chips span {
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: 12px;
     letter-spacing: .05em;
     color: var(--ink-3);
     border: 1px solid var(--line);
@@ -490,7 +490,7 @@ body::after {
 
 .form-group label {
     display: block;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     margin-bottom: 7px;
     color: var(--ink-2);
@@ -509,7 +509,7 @@ body::after {
 .field-head label { margin-bottom: 0; }
 
 .field-hint {
-    font-size: 11px;
+    font-size: 13px;
     color: var(--ink-3);
     line-height: 1.5;
     flex-shrink: 0;
@@ -522,7 +522,7 @@ body::after {
     padding: 0 11px;
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
-    font-size: 13px;
+    font-size: 15px;
     background: var(--surface);
     color: var(--ink);
     outline: none;
@@ -548,7 +548,7 @@ body::after {
     padding: 12px 13px;
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
-    font-size: 12.5px;
+    font-size: 14.5px;
     background: var(--surface);
     color: var(--ink);
     outline: none;
@@ -573,7 +573,7 @@ body::after {
     align-items: center;
     gap: 10px;
     margin-top: 6px;
-    font-size: 10.5px;
+    font-size: 12.5px;
     color: var(--ink-3);
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
@@ -588,7 +588,7 @@ body::after {
     text-overflow: ellipsis;
     white-space: nowrap;
     font-family: var(--font-sans);
-    font-size: 11px;
+    font-size: 13px;
 }
 
 /* 键位提示 */
@@ -602,7 +602,7 @@ body::after {
     border-radius: 4px;
     background: var(--surface-3);
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: 12px;
     color: var(--ink-3);
     letter-spacing: .02em;
     white-space: nowrap;
@@ -613,7 +613,7 @@ body::after {
     align-items: center;
     gap: 5px;
     font-family: var(--font-sans);
-    font-size: 10.5px;
+    font-size: 12.5px;
     color: var(--ink-4);
 }
 
@@ -631,7 +631,7 @@ body::after {
     background: none;
     border: none;
     color: var(--ink-2);
-    font-size: 12.5px;
+    font-size: 14.5px;
     font-weight: 600;
     cursor: pointer;
     padding: 7px 0;
@@ -647,7 +647,7 @@ body::after {
 .options-toggle-hint {
     margin-left: auto;
     font-weight: 400;
-    font-size: 11px;
+    font-size: 13px;
     color: var(--ink-3);
 }
 
@@ -666,7 +666,7 @@ body::after {
 
 .option-label {
     display: block;
-    font-size: 11.5px;
+    font-size: 13.5px;
     font-weight: 600;
     color: var(--ink-2);
     margin-bottom: 8px;
@@ -674,7 +674,7 @@ body::after {
 }
 
 .option-desc {
-    font-size: 11px;
+    font-size: 13px;
     color: var(--ink-3);
     line-height: 1.6;
     margin-top: 8px;
@@ -704,7 +704,7 @@ body::after {
     padding: 0 11px;
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
-    font-size: 12.5px;
+    font-size: 14.5px;
     font-weight: 500;
     color: var(--ink-2);
     background: var(--surface);
@@ -729,7 +729,7 @@ body::after {
 
 .checkbox-pill span::before {
     content: '✓';
-    font-size: 10.5px;
+    font-size: 12.5px;
     line-height: 1;
     color: transparent;
     flex-shrink: 0;
@@ -762,7 +762,7 @@ body::after {
     padding: 0 15px;
     border: 1px solid transparent;
     border-radius: var(--radius-sm);
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
     transition: background .15s ease, border-color .15s ease, color .15s ease, transform .06s ease, box-shadow .15s ease;
@@ -780,7 +780,7 @@ body::after {
 .btn-sm {
     height: 29px;
     padding: 0 10px;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 500;
     border-radius: 6px;
 }
@@ -788,7 +788,7 @@ body::after {
 .btn-lg {
     height: 42px;
     padding: 0 20px;
-    font-size: 13.5px;
+    font-size: 15.5px;
     flex: 1;
     border-radius: var(--radius-sm);
 }
@@ -809,7 +809,7 @@ body::after {
 
 .btn-primary .btn-kbd {
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 500;
     letter-spacing: .02em;
     color: rgba(255, 255, 255, .62);
@@ -887,7 +887,7 @@ body::after {
 .result-banner-body { flex: 1; min-width: 0; }
 
 .result-banner-body h3 {
-    font-size: 13.5px;
+    font-size: 15.5px;
     font-weight: 600;
     margin-bottom: 3px;
 }
@@ -896,7 +896,7 @@ body::after {
 .result-banner.error .result-banner-body h3 { color: var(--danger); }
 
 .result-banner-body p {
-    font-size: 11.5px;
+    font-size: 13.5px;
     color: var(--ink-2);
     word-break: break-all;
     line-height: 1.65;
@@ -918,7 +918,7 @@ body::after {
 }
 
 .history-count {
-    font-size: 12px;
+    font-size: 14px;
     color: var(--ink-3);
     font-weight: 500;
     font-family: var(--font-mono);
@@ -966,7 +966,7 @@ body::after {
 .history-item-body { flex: 1; min-width: 0; }
 
 .history-item-title {
-    font-size: 13.5px;
+    font-size: 15.5px;
     font-weight: 600;
     color: var(--ink);
     margin-bottom: 3px;
@@ -977,25 +977,43 @@ body::after {
 
 .history-item-meta {
     display: flex;
-    gap: 12px;
+    gap: 5px 13px;
     flex-wrap: wrap;
-    font-size: 10.5px;
+    align-items: center;
+    font-size: 12.5px;
     color: var(--ink-3);
     margin-bottom: 7px;
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
+    min-width: 0;
 }
 
-.history-item-meta span {
-    display: flex;
+.history-item-meta .meta-item {
+    display: inline-flex;
     align-items: center;
     gap: 4px;
+    min-width: 0;
+    max-width: 100%;
+    white-space: nowrap;
 }
 
-.history-item-meta svg { stroke-width: 1.6; opacity: .8; }
+.history-item-meta .meta-item svg {
+    stroke-width: 1.7;
+    opacity: .75;
+    flex-shrink: 0;
+}
+
+/* 源文件名过长时省略，避免把整行撑成两行 */
+.history-item-meta .meta-source { max-width: 44ch; }
+
+.history-item-meta .meta-source .meta-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
 .history-item-preview {
-    font-size: 12px;
+    font-size: 14px;
     color: var(--ink-2);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1009,7 +1027,7 @@ body::after {
     background: var(--warn-soft);
     border: 1px solid var(--warn-line);
     border-radius: var(--r-xs);
-    font-size: 11.5px;
+    font-size: 13.5px;
     color: #7a5518;
     display: inline-flex;
     align-items: center;
@@ -1043,7 +1061,7 @@ body::after {
     padding: 6px 9px;
     border: 1px solid var(--accent-line);
     border-radius: var(--r-xs);
-    font-size: 12px;
+    font-size: 14px;
     background: var(--surface);
     color: var(--ink);
     outline: none;
@@ -1063,7 +1081,7 @@ body::after {
     border-radius: 5px;
     background: var(--surface);
     cursor: pointer;
-    font-size: 11px;
+    font-size: 13px;
     color: var(--ink-2);
     font-family: inherit;
     transition: all .15s ease;
@@ -1084,8 +1102,36 @@ body::after {
 
 .history-item-actions {
     display: flex;
-    gap: 5px;
+    align-items: center;
+    gap: 8px;
     flex-shrink: 0;
+}
+
+/* 方向标签：转 Word / 转 Markdown */
+.history-tag {
+    display: inline-flex;
+    align-items: center;
+    height: 23px;
+    padding: 0 9px;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.history-tag.docx {
+    background: var(--accent-soft);
+    color: var(--accent-deep);
+    border-color: var(--accent-line);
+}
+
+.history-tag.md {
+    background: #edf0f5;
+    color: #46566b;
+    border-color: #dbe1ea;
 }
 
 .icon-btn {
@@ -1130,12 +1176,12 @@ body::after {
 
 .empty-state p {
     margin-top: 12px;
-    font-size: 13px;
+    font-size: 15px;
     color: var(--ink-2);
 }
 
 .empty-state .empty-hint {
-    font-size: 11.5px;
+    font-size: 13.5px;
     color: var(--ink-3);
     line-height: 1.7;
     max-width: 44ch;
@@ -1191,7 +1237,7 @@ body::after {
 
 .status-card-header h3 {
     font-family: var(--font-serif);
-    font-size: 15.5px;
+    font-size: 17.5px;
     font-weight: 700;
     letter-spacing: .01em;
 }
@@ -1204,7 +1250,7 @@ body::after {
 }
 
 .info-text {
-    font-size: 12.5px;
+    font-size: 14.5px;
     color: var(--ink-2);
     line-height: 1.75;
     margin-bottom: 6px;
@@ -1227,7 +1273,7 @@ body::after {
 
 .settings-card-header h3 {
     font-family: var(--font-serif);
-    font-size: 15.5px;
+    font-size: 17.5px;
     font-weight: 700;
     letter-spacing: .01em;
 }
@@ -1257,13 +1303,13 @@ body::after {
 }
 
 .setting-title {
-    font-size: 12.5px;
+    font-size: 14.5px;
     font-weight: 500;
     color: var(--ink);
 }
 
 .setting-desc {
-    font-size: 11px;
+    font-size: 13px;
     color: var(--ink-3);
     line-height: 1.55;
 }
@@ -1281,13 +1327,13 @@ body::after {
 .info-row:last-child { border-bottom: none; }
 
 .info-label {
-    font-size: 12.5px;
+    font-size: 14.5px;
     color: var(--ink-3);
     flex-shrink: 0;
 }
 
 .info-value {
-    font-size: 12.5px;
+    font-size: 14.5px;
     color: var(--ink);
     text-align: right;
     display: flex;
@@ -1301,12 +1347,12 @@ body::after {
 
 .info-value.mono {
     font-family: var(--font-mono);
-    font-size: 11.5px;
+    font-size: 13.5px;
     font-variant-numeric: tabular-nums;
 }
 
 .info-value.path {
-    font-size: 10.5px;
+    font-size: 12.5px;
     color: var(--ink-3);
 }
 
@@ -1337,7 +1383,7 @@ body::after {
 
 /* ===== 徽章 ===== */
 .badge {
-    font-size: 10.5px;
+    font-size: 12.5px;
     font-weight: 600;
     padding: 2px 8px;
     border-radius: 5px;
@@ -1412,7 +1458,7 @@ body::after {
     justify-content: center;
     gap: 7px;
     padding: 9px 12px;
-    font-size: 10.5px;
+    font-size: 12.5px;
     color: var(--ink-3);
     border-top: 1px solid var(--line);
     background: var(--surface-2);
@@ -1431,7 +1477,7 @@ body::after {
 }
 
 .copyright {
-    font-size: 10.5px;
+    font-size: 12.5px;
     color: var(--ink-4);
     text-align: center;
     margin-top: 10px;
@@ -1473,7 +1519,7 @@ body::after {
     padding: 0 9px;
     border: 1px solid var(--line);
     border-radius: 6px;
-    font-size: 12.5px;
+    font-size: 14.5px;
     background: var(--surface);
     color: var(--ink);
     outline: none;
@@ -1489,7 +1535,7 @@ body::after {
 }
 
 .font-size-section-title {
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--ink-3);
     letter-spacing: .04em;
@@ -1512,7 +1558,7 @@ body::after {
 }
 
 .font-size-label {
-    font-size: 12.5px;
+    font-size: 14.5px;
     color: var(--ink-2);
 }
 
@@ -1528,7 +1574,7 @@ body::after {
     padding: 0 6px;
     border: 1px solid var(--line);
     border-radius: 6px;
-    font-size: 12.5px;
+    font-size: 14.5px;
     text-align: center;
     background: var(--surface);
     color: var(--ink);
@@ -1544,7 +1590,7 @@ body::after {
 }
 
 .font-size-unit {
-    font-size: 10.5px;
+    font-size: 12.5px;
     color: var(--ink-4);
     min-width: 16px;
     font-family: var(--font-mono);
@@ -1559,7 +1605,7 @@ body::after {
 }
 
 .font-hint {
-    font-size: 10.5px;
+    font-size: 12.5px;
     color: var(--ink-3);
     margin-top: 7px;
     line-height: 1.6;
@@ -1585,7 +1631,7 @@ body::after {
     display: flex;
     align-items: center;
     gap: 5px;
-    font-size: 11.5px;
+    font-size: 13.5px;
     font-weight: 600;
     color: var(--ink-2);
     margin-bottom: 7px;
@@ -1604,7 +1650,7 @@ body::after {
     display: flex;
     align-items: center;
     padding: 7px 11px;
-    font-size: 11.5px;
+    font-size: 13.5px;
     border-bottom: 1px solid var(--line-soft);
     transition: background .12s ease;
 }
@@ -1617,7 +1663,7 @@ body::after {
     background: var(--surface-3);
     font-weight: 600;
     color: var(--ink-3);
-    font-size: 10.5px;
+    font-size: 12.5px;
     letter-spacing: .04em;
 }
 
@@ -1625,7 +1671,7 @@ body::after {
     flex: 1;
     color: var(--ink);
     font-family: var(--font-mono);
-    font-size: 11.5px;
+    font-size: 13.5px;
 }
 
 .dep-row-head .dep-name {
@@ -1639,7 +1685,7 @@ body::after {
     text-align: left;
     color: var(--ink-3);
     font-family: var(--font-mono);
-    font-size: 10.5px;
+    font-size: 12.5px;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     overflow: hidden;
@@ -1655,7 +1701,7 @@ body::after {
     display: inline-block;
     padding: 1px 6px;
     border-radius: 4px;
-    font-size: 9.5px;
+    font-size: 11.5px;
     font-weight: 600;
     letter-spacing: .02em;
     border: 1px solid transparent;
@@ -1688,7 +1734,7 @@ body::after {
 .dep-loading {
     padding: 14px;
     text-align: center;
-    font-size: 11.5px;
+    font-size: 13.5px;
     color: var(--ink-3);
 }
 
@@ -1741,13 +1787,13 @@ body::after {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 12.5px;
+    font-size: 14.5px;
     color: var(--ink);
 }
 
 .import-item-meta {
     flex: 0 0 auto;
-    font-size: 11px;
+    font-size: 13px;
     color: var(--ink-3);
     font-variant-numeric: tabular-nums;
     font-family: var(--font-mono);
@@ -1760,7 +1806,7 @@ body::after {
     border: none;
     background: transparent;
     color: var(--ink-4);
-    font-size: 15px;
+    font-size: 17px;
     line-height: 1;
     padding: 0 3px;
     cursor: pointer;
@@ -1773,7 +1819,7 @@ body::after {
 .import-source {
     margin-left: 6px;
     font-weight: 400;
-    font-size: 11px;
+    font-size: 13px;
     color: var(--ink-3);
     font-family: var(--font-mono);
 }
@@ -1804,7 +1850,7 @@ body::after {
     align-items: center;
     justify-content: center;
     gap: 7px;
-    font-size: 10.5px;
+    font-size: 12.5px;
     color: var(--ink-3);
     line-height: 1.6;
     margin-top: auto;
