@@ -37,7 +37,7 @@ module.exports = async function afterPack(context) {
         '--set-file-version', `${version}.0`,
         '--set-product-version', version,
         '--set-version-string', 'ProductName', productName,
-        '--set-version-string', 'FileDescription', `${productName} - 文档与 Word 互转`,
+        '--set-version-string', 'FileDescription', productName,
         '--set-version-string', 'CompanyName', productName,
         '--set-version-string', 'LegalCopyright', productName,
         '--set-version-string', 'OriginalFilename', `${productName}.exe`,
